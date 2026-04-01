@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QubicShield — Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b22;
+      --bg3:      #21262d;
+      --border:   #30363d;
+      --text:     #c9d1d9;
+      --muted:    #6b7280;
+      --accent:   #7c3aed;
+      --cyan:     #06b6d4;
+      --green:    #10b981;
+      --red:      #ef4444;
+      --yellow:   #f59e0b;
+      --orange:   #f97316;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 56px auto 1fr;
+    }
+
+    /* ── Nav (unified) ── */
+    nav {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky; top: 0; z-index: 50;
+      height: 56px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 1rem; color: var(--text);
+      text-decoration: none;
+    }
+    .nav-brand svg { width: 26px; height: 26px; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); text-decoration: none; transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--bg3); border-color: var(--border); }
+    .nav-btn.active { color: var(--cyan); background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); font-weight: 600; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .badge-protected {
+      background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4);
+      color: var(--green); font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .badge-offline {
+      background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4);
+      color: var(--red); font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* ── Toolbar (below nav, dashboard-specific) ── */
+    .dash-toolbar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 20px;
+      display: flex; justify-content: flex-end; align-items: center; gap: 12px;
+    }
+    .refresh-info {
+      font-size: 0.78rem; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dot-live {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    .dot-offline { background: var(--red); animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    /* ── Language ── */
+    [data-lang] { display: none; }
+    body.lang-de [data-lang="de"] { display: block; }
+    body.lang-en [data-lang="en"] { display: block; }
+    body.lang-de [data-lang="de"].inline,
+    body.lang-en [data-lang="en"].inline { display: inline; }
+    .lang-switch { display: flex; gap: 0.3rem; align-items: center; }
+    .lang-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      font-size: 0.75rem; font-weight: 600; padding: 3px 8px;
+      border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    }
+    .lang-btn.active, .lang-btn:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(6,182,212,0.1); }
+
+    .btn-sm {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+      background: var(--bg3); color: var(--text); transition: all 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--cyan); color: var(--cyan); }
+    a.nav-link { color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+    a.nav-link:hover { color: var(--text); }
+
+    /* ── Layout ── */
+    main {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      grid-template-rows: auto auto 1fr;
+      gap: 16px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-size: 0.82rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+    }
+    .card-body { padding: 16px; }
+
+    /* ── Stat row ── */
+    .stats-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px;
+      position: relative; overflow: hidden;
+    }
+    .stat::after {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat.s-total::after   { background: var(--cyan); }
+    .stat.s-active::after  { background: var(--green); }
+    .stat.s-held::after    { background: var(--accent); }
+    .stat.s-ref::after     { background: var(--green); }
+    .stat.s-forf::after    { background: var(--red); }
+    .stat.s-burn::after    { background: var(--orange); }
+    .stat.s-vict::after    { background: var(--yellow); }
+
+    .stat-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+    .stat-val   { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+    .stat-sub   { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    .stat.s-total .stat-val  { color: var(--cyan); }
+    .stat.s-active .stat-val { color: var(--green); }
+    .stat.s-held .stat-val   { color: #c4b5fd; }
+    .stat.s-ref .stat-val    { color: var(--green); }
+    .stat.s-forf .stat-val   { color: var(--red); }
+    .stat.s-burn .stat-val   { color: var(--orange); }
+    .stat.s-vict .stat-val   { color: var(--yellow); }
+
+    /* ── Forfeit split bar ── */
+    .split-section { grid-column: 1 / -1; }
+    .split-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .split-bar-wrap { flex: 1; min-width: 200px; }
+    .split-bar {
+      height: 28px; border-radius: 6px; overflow: hidden;
+      display: flex; margin-bottom: 8px;
+    }
+    .split-seg {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+      transition: flex 0.5s ease;
+      white-space: nowrap; overflow: hidden;
+    }
+    .seg-burn  { background: var(--red);    color: #fff; }
+    .seg-vict  { background: var(--green);  color: #fff; }
+    .seg-held  { background: var(--accent); color: #fff; }
+    .split-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+    .leg-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+    .leg-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── Sparkline (mini bar chart) ── */
+    .sparkline { width: 100%; height: 60px; }
+
+    /* ── Event log ── */
+    .event-list { display: flex; flex-direction: column; gap: 1px; max-height: 520px; overflow-y: auto; }
+    .ev {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 12px; border-radius: 6px;
+      font-size: 0.8rem; transition: background 0.2s;
+    }
+    .ev:hover { background: var(--bg3); }
+    .ev-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 4px; flex-shrink: 0; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-top: 1px;
+    }
+    .ev-deposit .ev-badge { background: rgba(6,182,212,0.2);  color: var(--cyan);   border: 1px solid rgba(6,182,212,0.4); }
+    .ev-refund  .ev-badge { background: rgba(16,185,129,0.2); color: var(--green);  border: 1px solid rgba(16,185,129,0.4); }
+    .ev-forfeit .ev-badge,
+    .ev-attack  .ev-badge { background: rgba(239,68,68,0.2);  color: var(--red);    border: 1px solid rgba(239,68,68,0.4); }
+    .ev-access  .ev-badge { background: rgba(124,58,237,0.15);color: #c4b5fd;       border: 1px solid rgba(124,58,237,0.3); }
+
+    .ev-body { flex: 1; min-width: 0; }
+    .ev-wallet { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ev-detail { color: var(--muted); margin-top: 1px; }
+    .ev-time { color: var(--muted); font-size: 0.72rem; flex-shrink: 0; white-space: nowrap; }
+
+    .ev-attack { background: rgba(239,68,68,0.06); border-left: 3px solid var(--red); border-radius: 0 6px 6px 0; }
+
+    /* ── Alert banner ── */
+    .alert {
+      display: none;
+      padding: 12px 16px; border-radius: 8px; font-size: 0.875rem;
+      font-weight: 600; margin-bottom: 4px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform:none; } }
+    .alert.attack { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5); color: var(--red); display: flex; gap: 8px; align-items: center; }
+
+    /* ── Session table ── */
+    .session-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .session-table th {
+      text-align: left; padding: 8px 10px;
+      color: var(--muted); font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: 0.06em; border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .session-table td { padding: 8px 10px; border-bottom: 1px solid rgba(48,54,61,0.5); }
+    .session-table tr:last-child td { border-bottom: none; }
+    .session-table tr:hover td { background: var(--bg3); }
+    .badge {
+      font-size: 0.68rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-held     { background: rgba(124,58,237,0.2); color: #c4b5fd;  border: 1px solid rgba(124,58,237,0.35); }
+    .badge-refunded { background: rgba(16,185,129,0.2); color: var(--green); border: 1px solid rgba(16,185,129,0.35); }
+    .badge-forfeited{ background: rgba(239,68,68,0.2);  color: var(--red);   border: 1px solid rgba(239,68,68,0.35); }
+    .empty-state { text-align: center; color: var(--muted); padding: 32px; font-size: 0.85rem; }
+
+    /* ── Progress ring ── */
+    .ring-wrap { display: flex; align-items: center; gap: 16px; }
+    .ring { transform: rotate(-90deg); }
+    .ring-track { fill: none; stroke: var(--bg3); stroke-width: 8; }
+    .ring-fill  { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+    .ring-label { text-anchor: middle; dominant-baseline: central; }
+    .ring-info { display: flex; flex-direction: column; gap: 4px; }
+    .ring-stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .ring-stat-val   { font-size: 1.1rem; font-weight: 700; }
+
+    /* ── Epoch banner ── */
+    .epoch-banner {
+      grid-column: 1 / -1;
+      background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4);
+      border-radius: 8px; padding: 10px 16px; font-size: 0.82rem;
+      display: none; align-items: center; gap: 10px; color: var(--yellow);
+    }
+    .epoch-banner.visible { display: flex; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body class="lang-de">
+
+<!-- ── Navigation ── -->
+<nav>
+  <a class="nav-brand" href="/">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
+            fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="1.5"/>
+      <path d="M9 12l2 2 4-4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    QubicShield
+  </a>
+  <div class="nav-links">
+    <a href="/" class="nav-btn">Home</a>
+    <a href="/demo.html" class="nav-btn">Simulation</a>
+    <a href="/dashboard.html" class="nav-btn active">Dashboard</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="badge-protected" id="server-badge">
+      <span class="dot-live" id="dot"></span>
+      <span id="server-label"><span data-lang="de" class="inline">Server läuft</span><span data-lang="en" class="inline">Server running</span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Dashboard Toolbar ── -->
+<div class="dash-toolbar">
+  <div class="refresh-info">
+    <span id="refresh-label"><span data-lang="de" class="inline">Aktualisiert vor 0s</span><span data-lang="en" class="inline">Updated 0s ago</span></span>
+  </div>
+  <button class="btn-sm" onclick="fetchAll()"><span data-lang="de" class="inline">Aktualisieren</span><span data-lang="en" class="inline">Refresh</span></button>
+</div>
+
+<!-- ── Main ── -->
+<main>
+
+  <!-- Epoch-Warnung -->
+  <div class="epoch-banner" id="epoch-banner">
+    <span data-lang="de" class="inline">⚠️ Server nicht erreichbar — möglicherweise Qubic Epochenwechsel (Mittwoch ~12 UTC).
+    Nächster Verbindungsversuch in <span id="epoch-countdown">8</span>s…</span>
+    <span data-lang="en" class="inline">⚠️ Server unreachable — possibly Qubic epoch change (Wednesday ~12 UTC).
+    Next connection attempt in <span id="epoch-countdown-en">8</span>s…</span>
+  </div>
+
+  <!-- Stat-Karten -->
+  <div class="stats-row">
+    <div class="stat s-total">
+      <div class="stat-label"><span data-lang="de" class="inline">Gesamt Deposits</span><span data-lang="en" class="inline">Total Deposits</span></div>
+      <div class="stat-val" id="s-total">—</div>
+      <div class="stat-sub"><span data-lang="de" class="inline">seit Start</span><span data-lang="en" class="inline">since start</span></div>
+    </div>
+    <div class="stat s-active">
+      <div class="stat-label"><span data-lang="de" class="inline">Aktive Sessions</span><span data-lang="en" class="inline">Active Sessions</span></div>
+      <div class="stat-val" id="s-active">—</div>
+      <div class="stat-sub"><span data-lang="de" class="inline">aktuell HELD</span><span data-lang="en" class="inline">currently HELD</span></div>
+    </div>
+    <div class="stat s-held">
+      <div class="stat-label"><span data-lang="de" class="inline">Gebunden (QU)</span><span data-lang="en" class="inline">Held (QU)</span></div>
+      <div class="stat-val" id="s-held">—</div>
+      <div class="stat-sub"><span data-lang="de" class="inline">im Smart Contract</span><span data-lang="en" class="inline">in smart contract</span></div>
+    </div>
+    <div class="stat s-ref">
+      <div class="stat-label"><span data-lang="de" class="inline">Erstattet</span><span data-lang="en" class="inline">Refunded</span></div>
+      <div class="stat-val" id="s-ref">—</div>
+      <div class="stat-sub" id="s-ref-count">0 Sessions</div>
+    </div>
+    <div class="stat s-forf">
+      <div class="stat-label"><span data-lang="de" class="inline">Konfisziert</span><span data-lang="en" class="inline">Forfeited</span></div>
+      <div class="stat-val" id="s-forf">—</div>
+      <div class="stat-sub" id="s-forf-count"><span data-lang="de" class="inline">0 Angriffe</span><span data-lang="en" class="inline">0 attacks</span></div>
+    </div>
+    <div class="stat s-burn">
+      <div class="stat-label"><span data-lang="de" class="inline">Verbrannt</span><span data-lang="en" class="inline">Burned</span></div>
+      <div class="stat-val" id="s-burn">—</div>
+      <div class="stat-sub"><span data-lang="de" class="inline">50% der Forfeits</span><span data-lang="en" class="inline">50% of forfeits</span></div>
+    </div>
+    <div class="stat s-vict">
+      <div class="stat-label"><span data-lang="de" class="inline">Ans Opfer</span><span data-lang="en" class="inline">To Victim</span></div>
+      <div class="stat-val" id="s-vict">—</div>
+      <div class="stat-sub"><span data-lang="de" class="inline">50% der Forfeits</span><span data-lang="en" class="inline">50% of forfeits</span></div>
+    </div>
+  </div>
+
+  <!-- Linke Spalte: Split + Aktivität -->
+  <div style="display:flex; flex-direction:column; gap:16px;">
+
+    <!-- Token-Verteilung -->
+    <div class="card split-section">
+      <div class="card-header">
+        <span class="card-title"><span data-lang="de" class="inline">Token-Verteilung (Gesamte Laufzeit)</span><span data-lang="en" class="inline">Token Distribution (All Time)</span></span>
+      </div>
+      <div class="card-body">
+        <div id="alert-attack" class="alert"></div>
+        <div class="split-bar" id="split-bar">
+          <div class="split-seg seg-held"  id="seg-held"  style="flex:1">Aktiv</div>
+          <div class="split-seg seg-vict"  id="seg-vict"  style="flex:0">Opfer</div>
+          <div class="split-seg seg-burn"  id="seg-burn"  style="flex:0">Burn</div>
+        </div>
+        <div class="split-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div><span id="leg-held">0 QU aktiv gehalten</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div><span id="leg-ref">0 QU zurückerstattet</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div><span id="leg-burn">0 QU verbrannt</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--yellow)"></div><span id="leg-vict">0 QU ans Opfer</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donut: Refund vs Forfeit Rate -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><span data-lang="de" class="inline">Legitim vs. Angriffe</span><span data-lang="en" class="inline">Legitimate vs. Attacks</span></span>
+        <span id="rate-label" style="font-size:0.78rem;color:var(--muted)"></span>
+      </div>
+      <div class="card-body">
+        <div class="ring-wrap">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle class="ring-track" cx="50" cy="50" r="38"/>
+            <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="38"
+                    stroke="var(--green)"
+                    stroke-dasharray="238.76"
+                    stroke-dashoffset="238.76"/>
+            <text class="ring-label" x="50" y="48" fill="var(--text)" font-size="14" font-weight="800" transform="rotate(90,50,50)" id="ring-pct">—</text>
+            <text class="ring-label" x="50" y="62" fill="var(--muted)" font-size="8" transform="rotate(90,50,50)" id="ring-sub-label">legitim</text>
+          </svg>
+          <div class="ring-info">
+            <div>
+              <div class="ring-stat-label"><span data-lang="de" class="inline">Legitim</span><span data-lang="en" class="inline">Legitimate</span></div>
+              <div class="ring-stat-val" id="ring-legit" style="color:var(--green)">0</div>
+            </div>
+            <div>
+              <div class="ring-stat-label"><span data-lang="de" class="inline">Angriffe</span><span data-lang="en" class="inline">Attacks</span></div>
+              <div class="ring-stat-val" id="ring-attack" style="color:var(--red)">0</div>
+            </div>
+            <div>
+              <div class="ring-stat-label"><span data-lang="de" class="inline">Gesamt</span><span data-lang="en" class="inline">Total</span></div>
+              <div class="ring-stat-val" id="ring-total">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aktivitäts-Sparkline -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><span data-lang="de" class="inline">Aktivität (letzte 20 Ticks)</span><span data-lang="en" class="inline">Activity (last 20 ticks)</span></span>
+      </div>
+      <div class="card-body">
+        <canvas class="sparkline" id="spark" width="600" height="60"></canvas>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--cyan)"></div><span style="font-size:0.75rem;color:var(--muted)">Deposits</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div><span style="font-size:0.75rem;color:var(--muted)">Refunds</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div><span style="font-size:0.75rem;color:var(--muted)"><span data-lang="de" class="inline">Angriffe</span><span data-lang="en" class="inline">Attacks</span></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /linke Spalte -->
+
+  <!-- Rechte Spalte: Event-Log -->
+  <div style="display:flex; flex-direction:column; gap:16px;">
+
+    <div class="card" style="flex:1">
+      <div class="card-header">
+        <span class="card-title">Live Event Log</span>
+        <span id="ev-count" style="font-size:0.75rem;color:var(--muted)">0 Events</span>
+      </div>
+      <div class="card-body" style="padding:8px;">
+        <div class="event-list" id="event-list">
+          <div class="empty-state"><span data-lang="de" class="inline">Noch keine Events — starte einen Deposit.</span><span data-lang="en" class="inline">No events yet — start a deposit.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><span data-lang="de" class="inline">Aktive Sessions</span><span data-lang="en" class="inline">Active Sessions</span></span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div id="session-wrap">
+          <div class="empty-state"><span data-lang="de" class="inline">Keine aktiven Sessions</span><span data-lang="en" class="inline">No active sessions</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /rechte Spalte -->
+
+</main>
+
+<script>
+// ── Language helper ──────────────────────────────────────────────────────────
+const isEn = () => document.body.classList.contains('lang-en');
+const t = (de, en) => isEn() ? en : de;
+
+// ── State ────────────────────────────────────────────────────────────────────
+let lastStats  = null;
+let lastEvents = [];
+let lastRefresh = Date.now();
+let offlineSince = null;
+let sparkData  = { deposit: [], refund: [], attack: [] };
+const SPARK_TICKS = 20;
+
+// ── Fetch all ────────────────────────────────────────────────────────────────
+async function fetchAll() {
+  try {
+    const [sRes, eRes] = await Promise.all([
+      fetch('/api/stats'),
+      fetch('/api/events?limit=50'),
+    ]);
+    if (!sRes.ok || !eRes.ok) throw new Error('Non-OK response');
+
+    lastStats  = await sRes.json();
+    lastEvents = await eRes.json();
+    lastRefresh = Date.now();
+    offlineSince = null;
+
+    setOnline(true);
+    renderStats(lastStats);
+    renderEvents(lastEvents);
+    renderSpark(lastEvents);
+    updateRefreshLabel();
+    checkForAttack(lastEvents);
+    document.getElementById('epoch-banner').classList.remove('visible');
+  } catch {
+    setOnline(false);
+    if (!offlineSince) offlineSince = Date.now();
+    if (Date.now() - offlineSince > 10_000) {
+      document.getElementById('epoch-banner').classList.add('visible');
+    }
+  }
+}
+
+// ── Online/Offline indicator ─────────────────────────────────────────────────
+function setOnline(on) {
+  const dot   = document.getElementById('dot');
+  const badge = document.getElementById('server-badge');
+  dot.className   = 'dot-live' + (on ? '' : ' dot-offline');
+  badge.className = on ? 'badge-protected' : 'badge-offline';
+}
+
+// ── Stats rendering ──────────────────────────────────────────────────────────
+function fmt(n) { return (n ?? 0).toLocaleString(isEn() ? 'en-US' : 'de-DE'); }
+
+function renderStats(s) {
+  setText('s-total',  s.totalDeposits ?? 0);
+  setText('s-active', s.activeSessions ?? 0);
+  setText('s-held',   fmt(s.heldAmount ?? 0) + ' QU');
+  setText('s-ref',    fmt(s.refundedAmount ?? 0) + ' QU');
+  setText('s-ref-count', (s.refundedCount ?? 0) + ' Sessions');
+  setText('s-forf',   fmt(s.forfeitedAmount ?? 0) + ' QU');
+  setText('s-forf-count', (s.forfeitedCount ?? 0) + t(' Angriffe', ' attacks'));
+  setText('s-burn',   fmt(s.forfeitedToBurn ?? 0) + ' QU');
+  setText('s-vict',   fmt(s.forfeitedToVictim ?? 0) + ' QU');
+
+  renderSplitBar(s);
+  renderRing(s);
+}
+
+function renderSplitBar(s) {
+  const held  = s.heldAmount      ?? 0;
+  const ref   = s.refundedAmount  ?? 0;
+  const burn  = s.forfeitedToBurn ?? 0;
+  const vict  = s.forfeitedToVictim ?? 0;
+  const total = held + ref + burn + vict || 1;
+
+  const pHeld = held  / total;
+  const pRef  = ref   / total;
+  const pBurn = burn  / total;
+  const pVict = vict  / total;
+
+  // 4-segment bar: held (purple) · refunded (green) · victim (yellow) · burn (red)
+  const bar = document.getElementById('split-bar');
+  bar.innerHTML = `
+    <div class="split-seg" style="flex:${pHeld};background:var(--accent);color:#fff">${pHeld>0.08?Math.round(pHeld*100)+'%':''}</div>
+    <div class="split-seg" style="flex:${pRef};background:var(--green);color:#fff">${pRef>0.08?Math.round(pRef*100)+'%':''}</div>
+    <div class="split-seg" style="flex:${pVict};background:var(--yellow);color:#000">${pVict>0.08?Math.round(pVict*100)+'%':''}</div>
+    <div class="split-seg" style="flex:${pBurn};background:var(--red);color:#fff">${pBurn>0.08?Math.round(pBurn*100)+'%':''}</div>
+  `;
+
+  setText('leg-held', fmt(held) + t(' QU active', ' QU aktiv'));
+  setText('leg-ref',  fmt(ref)  + t(' QU refunded', ' QU zurückerstattet'));
+  setText('leg-burn', fmt(burn) + t(' QU burned', ' QU verbrannt'));
+  setText('leg-vict', fmt(vict) + t(' QU to victim', ' QU ans Opfer'));
+}
+
+function renderRing(s) {
+  const legit  = s.refundedCount ?? 0;
+  const attack = s.forfeitedCount ?? 0;
+  const total  = legit + attack || 1;
+  const pct    = Math.round(legit / total * 100);
+
+  const circumference = 2 * Math.PI * 38;
+  const offset = circumference * (1 - legit / total);
+
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  document.getElementById('ring-fill').style.stroke = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+  setText('ring-pct',    pct + '%');
+  setText('ring-legit',  legit);
+  setText('ring-attack', attack);
+  setText('ring-total',  total);
+  setText('rate-label',  pct + t('% legitimate sessions', '% legitime Sessions'));
+  const subLabel = document.getElementById('ring-sub-label');
+  if (subLabel) subLabel.textContent = t('legit', 'legitim');
+}
+
+// ── Event log ────────────────────────────────────────────────────────────────
+const TYPE_LABELS_DE = { deposit: 'Deposit', refund: 'Refund', forfeit: 'Forfeit', attack: 'Angriff', access: 'Access' };
+const TYPE_LABELS_EN = { deposit: 'Deposit', refund: 'Refund', forfeit: 'Forfeit', attack: 'Attack',  access: 'Access' };
+const TYPE_LABELS = () => isEn() ? TYPE_LABELS_EN : TYPE_LABELS_DE;
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60)  return s + 's';
+  if (s < 3600) return Math.floor(s/60) + 'm';
+  return Math.floor(s/3600) + 'h';
+}
+
+function renderEvents(events) {
+  const list = document.getElementById('event-list');
+  setText('ev-count', events.length + ' Events');
+
+  if (!events.length) {
+    list.innerHTML = `<div class="empty-state">${t('No events yet', 'Noch keine Events')}</div>`;
+    return;
+  }
+
+  const html = events.slice(0, 50).map(ev => {
+    const type  = ev.type === 'forfeit' ? 'attack' : ev.type;
+    const label = TYPE_LABELS()[ev.type] ?? ev.type;
+    const wallet = ev.wallet ?? '?';
+    const short  = wallet.length > 20 ? wallet.slice(0,18) + '…' : wallet;
+    const amtStr = ev.amount ? fmt(ev.amount) + ' QU' : '';
+    const detail = ev.detail ?? amtStr;
+
+    return `<div class="ev ev-${type}">
+      <span class="ev-badge">${label}</span>
+      <div class="ev-body">
+        <div class="ev-wallet" title="${wallet}">${short}</div>
+        <div class="ev-detail">${detail}</div>
+      </div>
+      <span class="ev-time">${timeAgo(ev.ts)}</span>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = html;
+
+  // Active sessions from events
+  renderActiveSessions(events);
+}
+
+function renderActiveSessions(events) {
+  const seen   = new Set();
+  const active = [];
+
+  for (const ev of events) {
+    if (seen.has(ev.sessionId)) continue;
+    seen.add(ev.sessionId);
+    if (ev.type === 'deposit' || ev.type === 'access') {
+      // Check it wasn't later refunded/forfeited
+      const later = events.find(e => e.sessionId === ev.sessionId && e.id > ev.id && (e.type === 'refund' || e.type === 'forfeit' || e.type === 'attack'));
+      if (!later) active.push(ev);
+    }
+  }
+
+  const wrap = document.getElementById('session-wrap');
+  if (!active.length) {
+    wrap.innerHTML = `<div class="empty-state">${t('No active sessions', 'Keine aktiven Sessions')}</div>`;
+    return;
+  }
+
+  const rows = active.slice(0,8).map(ev => {
+    const wallet = (ev.wallet ?? '?');
+    const short  = wallet.length > 14 ? wallet.slice(0,12)+'…' : wallet;
+    return `<tr>
+      <td title="${wallet}">${short}</td>
+      <td>${fmt(ev.amount)} QU</td>
+      <td><span class="badge badge-held">${t('active', 'aktiv')}</span></td>
+      <td style="color:var(--muted)">${timeAgo(ev.ts)}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `<table class="session-table">
+    <thead><tr><th>Wallet</th><th>QU</th><th>Status</th><th>${t('Age', 'Alter')}</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ── Sparkline ────────────────────────────────────────────────────────────────
+function renderSpark(events) {
+  // Bucket events into SPARK_TICKS time buckets (last 3 minutes)
+  const now    = Date.now();
+  const window = 3 * 60 * 1000;
+  const bucket = window / SPARK_TICKS;
+
+  const deps = new Array(SPARK_TICKS).fill(0);
+  const refs = new Array(SPARK_TICKS).fill(0);
+  const atks = new Array(SPARK_TICKS).fill(0);
+
+  for (const ev of events) {
+    const age = now - ev.ts;
+    if (age > window) continue;
+    const idx = SPARK_TICKS - 1 - Math.floor(age / bucket);
+    if (idx < 0 || idx >= SPARK_TICKS) continue;
+    if (ev.type === 'deposit')                   deps[idx]++;
+    else if (ev.type === 'refund')               refs[idx]++;
+    else if (ev.type === 'attack' || ev.type === 'forfeit') atks[idx]++;
+  }
+
+  const canvas = document.getElementById('spark');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const maxVal = Math.max(1, ...deps, ...refs, ...atks);
+  const bw = W / SPARK_TICKS - 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  function drawBars(data, color, offset) {
+    ctx.fillStyle = color;
+    data.forEach((v, i) => {
+      if (!v) return;
+      const h = Math.max(4, (v / maxVal) * (H - 8));
+      ctx.fillRect(i * (W / SPARK_TICKS) + offset, H - h, bw / 3, h);
+    });
+  }
+
+  drawBars(deps, 'rgba(6,182,212,0.8)',  0);
+  drawBars(refs, 'rgba(16,185,129,0.8)', bw/3 + 1);
+  drawBars(atks, 'rgba(239,68,68,0.8)',  2*(bw/3) + 2);
+}
+
+// ── Attack alert ─────────────────────────────────────────────────────────────
+let lastAttackId = 0;
+
+function checkForAttack(events) {
+  const attacks = events.filter(e => e.type === 'attack' || e.type === 'forfeit');
+  if (!attacks.length) return;
+
+  const newest = attacks[0];
+  if (newest.id <= lastAttackId) return;
+  lastAttackId = newest.id;
+
+  const half = Math.floor(newest.amount / 2);
+  const el   = document.getElementById('alert-attack');
+  el.className = 'alert attack';
+  el.innerHTML = isEn()
+    ? `⚡ Attack detected — ${fmt(newest.amount)} QU forfeited · ${fmt(half)} burned · ${fmt(half)} to victim`
+    : `⚡ Angriff erkannt — ${fmt(newest.amount)} QU konfisziert · ${fmt(half)} verbrannt · ${fmt(half)} ans Opfer`;
+
+  setTimeout(() => { el.style.display = 'none'; }, 15_000);
+}
+
+// ── Refresh label ────────────────────────────────────────────────────────────
+function updateRefreshLabel() {
+  const s = Math.floor((Date.now() - lastRefresh) / 1000);
+  const isEn = document.body.classList.contains('lang-en');
+  document.getElementById('refresh-label').innerHTML = isEn
+    ? `<span data-lang="en" class="inline">Updated ${s}s ago</span>`
+    : `<span data-lang="de" class="inline">Aktualisiert vor ${s}s</span>`;
+}
+
+// ── Epoch countdown ──────────────────────────────────────────────────────────
+let epochSeconds = 8;
+setInterval(() => {
+  if (!offlineSince) { epochSeconds = 8; return; }
+  epochSeconds = Math.max(0, epochSeconds - 1);
+  const el = document.getElementById('epoch-countdown');
+  if (el) el.textContent = epochSeconds;
+  const elEn = document.getElementById('epoch-countdown-en');
+  if (elEn) elEn.textContent = epochSeconds;
+  if (epochSeconds === 0) { epochSeconds = 8; fetchAll(); }
+}, 1000);
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ── Auto-refresh ─────────────────────────────────────────────────────────────
+setInterval(fetchAll, 3000);
+setInterval(updateRefreshLabel, 1000);
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+fetchAll();
+
+// ── Language ────────────────────────────────────────────────────────────────
+function setLang(lang) {
+  document.body.className = 'lang-' + lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === lang.toUpperCase());
+  });
+  localStorage.setItem('qubicshield-lang', lang);
+  // Re-render dynamic content with the new language
+  if (lastStats)  { renderStats(lastStats); }
+  if (lastEvents.length) { renderEvents(lastEvents); }
+  updateRefreshLabel();
+}
+const savedLang = localStorage.getItem('qubicshield-lang');
+if (savedLang) setLang(savedLang);
+</script>
+</body>
+</html>

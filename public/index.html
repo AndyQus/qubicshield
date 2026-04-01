@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello Qubic — Protected by QubicShield</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Top Nav ── */
+    nav {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .shield-icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .nav-btn:hover {
+      color: var(--text);
+      background: var(--bg3);
+      border-color: var(--border);
+    }
+
+    .nav-btn.active {
+      color: var(--accent2);
+      background: rgba(6, 182, 212, 0.1);
+      border-color: rgba(6, 182, 212, 0.3);
+      font-weight: 600;
+    }
+
+    .badge-protected {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--success);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-live {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    .dot-offline {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .badge-offline {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: var(--danger);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.4
+      }
+    }
+
+    /* ── Language switch ── */
+    [data-lang] {
+      display: none;
+    }
+
+    body.lang-de [data-lang="de"] {
+      display: block;
+    }
+
+    body.lang-en [data-lang="en"] {
+      display: block;
+    }
+
+    body.lang-de [data-lang="de"].inline,
+    body.lang-en [data-lang="en"].inline {
+      display: inline;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lang-btn.active,
+    .lang-btn:hover {
+      border-color: var(--accent);
+      color: #c4b5fd;
+      background: rgba(124, 58, 237, 0.1);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 32px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #c4b5fd 0%, #06b6d4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #6d28d9;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+
+    /* ── How it works ── */
+    .section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .step {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .step.deposit::before {
+      background: var(--accent);
+    }
+
+    .step.use::before {
+      background: var(--accent2);
+    }
+
+    .step.refund::before {
+      background: var(--success);
+    }
+
+    .step.forfeit::before {
+      background: var(--danger);
+    }
+
+    .step-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    /* ── Demo Widget ── */
+    .demo-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .demo-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .demo-tab {
+      padding: 14px 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .demo-tab.active {
+      color: var(--accent2);
+      border-bottom-color: var(--accent2);
+    }
+
+    .demo-tab:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .demo-panel {
+      padding: 24px;
+      display: none;
+    }
+
+    .demo-panel.active {
+      display: block;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .form-row input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-row input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Consolas', 'Cascadia Code', monospace;
+      font-size: 0.82rem;
+      color: #a5f3fc;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 80px;
+      max-height: 320px;
+      overflow-y: auto;
+      margin-top: 16px;
+    }
+
+    .code-block.empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .result-banner {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .result-banner.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--success);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .result-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: var(--danger);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .result-banner.warn {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--warn);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-value.success {
+      color: var(--success);
+    }
+
+    .stat-value.danger {
+      color: var(--danger);
+    }
+
+    .stat-value.accent {
+      color: var(--accent2);
+    }
+
+    /* ── Split Visualizer ── */
+    .split-vis {
+      background: var(--bg3);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .split-vis h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--muted);
+    }
+
+    .split-bar {
+      display: flex;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 20px;
+      margin-bottom: 8px;
+    }
+
+    .split-burn {
+      background: var(--danger);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .split-victim {
+      background: var(--success);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .split-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── Code snippet ── */
+    .snippet-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .snippet-header {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .snippet-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .snippet-lang {
+      background: rgba(124, 58, 237, 0.2);
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      color: #c4b5fd;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .snippet-body {
+      padding: 20px;
+      font-family: 'Consolas', 'Cascadia Code', monospace;
+      font-size: 0.82rem;
+      color: #a5f3fc;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+
+    .kw {
+      color: #c084fc;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cmt {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .fn {
+      color: #93c5fd;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    footer a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 48px 16px 32px;
+      }
+
+      .demo-tab {
+        padding: 12px 14px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="lang-de">
+
+  <!-- ── Navigation ── -->
+  <nav>
+    <a class="nav-brand" href="/">
+      <svg class="shield-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z" fill="rgba(124,58,237,0.3)"
+          stroke="#7c3aed" stroke-width="1.5" />
+        <path d="M9 12l2 2 4-4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      QubicShield
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-btn active">Home</a>
+      <a href="/demo.html" class="nav-btn">Simulation</a>
+      <a href="/dashboard.html" class="nav-btn">Dashboard</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('de')">DE</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="badge-protected" id="server-badge">
+        <span class="dot-live" id="server-dot"></span>
+        <span id="server-label">Server läuft</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <p class="hero-eyebrow">Qubic Ecosystem · DDoS Protection</p>
+    <h1>Hello Qubic</h1>
+    <p>
+      <span data-lang="de" class="inline">Diese Seite ist durch QubicShield geschützt — dezentraler DDoS-Schutz
+        durch wirtschaftliche Abschreckung. Wer angreift, verliert seine Kaution.
+        Wer legitim ist, zahlt nichts.</span>
+      <span data-lang="en" class="inline">This page is protected by QubicShield — decentralised DDoS protection
+        through economic deterrence. Attackers lose their deposit.
+        Legitimate users pay nothing.</span>
+    </p>
+    <div class="hero-cta">    
+      <a class="btn btn-primary" href="#demo">
+        <span data-lang="de" class="inline">▶ Demo starten</span>
+        <span data-lang="en" class="inline">▶ Start Demo</span>
+      </a>
+      <a class="btn btn-outline" href="#integrate">
+        <span data-lang="de" class="inline">Integration ansehen</span>
+        <span data-lang="en" class="inline">View Integration</span>
+      </a>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── How it works ── -->
+  <section class="section" id="how-it-works">
+    <h2 class="section-title">
+      <span data-lang="de" class="inline">Wie QubicShield funktioniert</span>
+      <span data-lang="en" class="inline">How QubicShield Works</span>
+    </h2>
+    <p class="section-sub">
+      <span data-lang="de" class="inline">Drei Schritte — für legitime Nutzer kostenlos. Für Angreifer sehr
+        teuer.</span>
+      <span data-lang="en" class="inline">Three steps — free for legitimate users. Very costly for attackers.</span>
+    </p>
+
+    <div class="steps">
+      <div class="step deposit">
+        <div class="step-icon">💰</div>
+        <div class="step-num"><span data-lang="de" class="inline">Schritt 1</span><span data-lang="en"
+            class="inline">Step 1</span></div>
+        <h3><span data-lang="de" class="inline">Deposit hinterlegen</span><span data-lang="en" class="inline">Place
+            Deposit</span></h3>
+        <p><span data-lang="de" class="inline">Der Nutzer hinterlegt QU-Tokens als rückzahlbare Kaution beim Smart
+            Contract. Der SC gibt einen Session-Token zurück.</span><span data-lang="en" class="inline">The user places
+            QU tokens as a refundable deposit with the smart contract. The SC returns a session token.</span></p>
+      </div>
+      <div class="step use">
+        <div class="step-icon">🔓</div>
+        <div class="step-num"><span data-lang="de" class="inline">Schritt 2</span><span data-lang="en"
+            class="inline">Step 2</span></div>
+        <h3><span data-lang="de" class="inline">Geschützten Dienst nutzen</span><span data-lang="en" class="inline">Use
+            Protected Service</span></h3>
+        <p><span data-lang="de" class="inline">Der Bearer-Token in jedem Request beweist: "Ich habe Tokens im Spiel."
+            Der Server prüft den Token beim SC.</span><span data-lang="en" class="inline">The Bearer token in every
+            request proves: "I have tokens at stake." The server verifies the token with the SC.</span></p>
+      </div>
+      <div class="step refund">
+        <div class="step-icon">✅</div>
+        <div class="step-num"><span data-lang="de" class="inline">Schritt 3a — Legitimer Nutzer</span><span
+            data-lang="en" class="inline">Step 3a — Legitimate User</span></div>
+        <h3><span data-lang="de" class="inline">Kaution zurück</span><span data-lang="en" class="inline">Deposit
+            Refunded</span></h3>
+        <p><span data-lang="de" class="inline">Session beenden → volle Rückerstattung. Der Nutzer hat nichts verloren.
+            Keine Gebühren, kein Abo.</span><span data-lang="en" class="inline">End session → full refund. The user lost
+            nothing. No fees, no subscription.</span></p>
+      </div>
+      <div class="step forfeit">
+        <div class="step-icon">⚡</div>
+        <div class="step-num"><span data-lang="de" class="inline">Schritt 3b — Angreifer</span><span data-lang="en"
+            class="inline">Step 3b — Attacker</span></div>
+        <h3><span data-lang="de" class="inline">Kaution konfisziert</span><span data-lang="en" class="inline">Deposit
+            Forfeited</span></h3>
+        <p><span data-lang="de" class="inline">Angriffsmuster erkannt → Kaution weg. 50% verbrannt · 50% an den
+            Angegriffenen. 0% an Plattform.</span><span data-lang="en" class="inline">Attack pattern detected → deposit
+            gone. 50% burned · 50% to the victim. 0% to platform.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── Live Demo ── -->
+  <section class="section" id="demo">
+    <h2 class="section-title">Live Demo</h2>
+    <p class="section-sub">
+      <span data-lang="de" class="inline">Probiere QubicShield direkt hier aus. Kein Krypto nötig — läuft im
+        Mock-Modus.</span>
+      <span data-lang="en" class="inline">Try QubicShield directly. No crypto needed — runs in mock mode.</span>
+    </p>
+
+    <div class="demo-card">
+      <div class="demo-tabs">
+        <button class="demo-tab active" onclick="showTab('tab-flow', this)"><span data-lang="de" class="inline">Normaler
+            Ablauf</span><span data-lang="en" class="inline">Normal Flow</span></button>
+        <button class="demo-tab" onclick="showTab('tab-attack', this)"><span data-lang="de" class="inline">Angriff
+            simulieren</span><span data-lang="en" class="inline">Simulate Attack</span></button>
+        <button class="demo-tab" onclick="showTab('tab-stats', this)"><span data-lang="de"
+            class="inline">Live-Statistiken</span><span data-lang="en" class="inline">Live Stats</span></button>
+      </div>
+
+      <!-- Tab: Normaler Ablauf -->
+      <div class="demo-panel active" id="tab-flow">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+          <div class="form-row">
+            <label>Wallet-Adresse (beliebig)</label>
+            <input id="wallet" type="text" value="DEMO-WALLET-001" />
+          </div>
+          <div class="form-row">
+            <label>Deposit-Betrag (QU)</label>
+            <input id="amount" type="number" value="1000" min="10" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btn-deposit" onclick="doDeposit()">
+            1 · Deposit erstellen
+          </button>
+          <button class="btn btn-outline" id="btn-access" onclick="doAccess()" disabled>
+            2 · Geschützten Endpoint aufrufen
+          </button>
+          <button class="btn btn-outline" id="btn-refund" onclick="doRefund()" disabled>
+            3 · Kaution zurückfordern
+          </button>
+        </div>
+
+        <div id="flow-result" class="result-banner"></div>
+        <div id="flow-output" class="code-block empty">← Starte mit "Deposit erstellen"</div>
+      </div>
+
+      <!-- Tab: Angriff simulieren -->
+      <div class="demo-panel" id="tab-attack">
+        <p style="color:var(--muted); font-size:0.875rem; margin-bottom:20px;">
+          Simuliert einen DDoS-Angriff: Erstellt einen Deposit, sendet dann viele schnelle
+          Anfragen. Ab 50 Req/min wird der Angriff erkannt und die Kaution konfisziert.
+        </p>
+        <div class="form-row">
+          <label>Angreifer-Wallet</label>
+          <input id="attack-wallet" type="text" value="ATTACKER-BOT-001" />
+        </div>
+        <div class="form-row">
+          <label>Deposit (QU)</label>
+          <input id="attack-amount" type="number" value="5000" min="10" />
+        </div>
+        <button class="btn btn-primary" id="btn-attack" onclick="doAttack()" style="background:#b91c1c">
+          ⚡ Angriff simulieren
+        </button>
+        <div id="attack-result" class="result-banner"></div>
+        <div id="attack-output" class="code-block empty">← Angriff noch nicht gestartet</div>
+
+        <div class="split-vis" id="split-vis" style="display:none">
+          <h4>Token-Verteilung nach Konfiszierung</h4>
+          <div class="split-bar">
+            <div class="split-burn">50% verbrannt</div>
+            <div class="split-victim">50% ans Opfer</div>
+          </div>
+          <div class="split-labels">
+            <span id="split-burn-val">— QU verbrannt</span>
+            <span id="split-victim-val">— QU ans Opfer</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Statistiken -->
+      <div class="demo-panel" id="tab-stats">
+        <button class="btn btn-outline" onclick="loadStats()" style="margin-bottom:16px;">
+          Aktualisieren
+        </button>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Gesamt Deposits</div>
+            <div class="stat-value accent" id="s-total">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Aktive Sessions</div>
+            <div class="stat-value" id="s-active">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Gebundene QU</div>
+            <div class="stat-value accent" id="s-held">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Rückerstattet</div>
+            <div class="stat-value success" id="s-refunded">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Konfisziert</div>
+            <div class="stat-value danger" id="s-forfeited">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Verbrannt</div>
+            <div class="stat-value danger" id="s-burned">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ans Opfer</div>
+            <div class="stat-value success" id="s-victim">—</div>
+          </div>
+        </div>
+        <div id="stats-output" class="code-block empty" style="margin-top:16px">← Statistiken laden…</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── Integration Code Snippet ── -->
+  <section class="section" id="integrate">
+    <h2 class="section-title">
+      <span data-lang="de" class="inline">Deinen Dienst schützen</span>
+      <span data-lang="en" class="inline">Protect Your Service</span>
+    </h2>
+    <p class="section-sub">
+      <span data-lang="de" class="inline">Drei Zeilen reichen. QubicShield als Express-Middleware.</span>
+      <span data-lang="en" class="inline">Three lines are enough. QubicShield as Express middleware.</span>
+    </p>
+
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <span class="snippet-title">server.ts — Deinen bestehenden Express-Server schützen</span>
+        <span class="snippet-lang">TypeScript</span>
+      </div>
+      <div class="snippet-body"><span class="kw">import</span> { rateLimiter, requireValidToken } <span
+          class="kw">from</span> <span class="str">'qubicshield'</span>;
+
+        <span class="cmt">// Deine bestehende Route — eine Zeile Middleware reicht</span>
+        app.<span class="fn">get</span>(<span class="str">'/api/mein-endpunkt'</span>,
+        rateLimiter, <span class="cmt">// Erkennt Angriffsmuster (&gt;50 req/min)</span>
+        requireValidToken, <span class="cmt">// Prüft QubicShield-Token beim SC</span>
+        (req, res) => {
+        res.<span class="fn">json</span>({ message: <span class="str">'Hello Qubic — Zugang gewährt'</span> });
+        }
+        );
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:16px;">
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span class="snippet-title">Client — curl</span>
+          <span class="snippet-lang">Shell</span>
+        </div>
+        <div class="snippet-body"><span class="cmt"># 1. Deposit erstellen</span>
+          curl -X POST http://localhost:3000/api/deposit \
+          -H <span class="str">'Content-Type: application/json'</span> \
+          -d <span class="str">'{"walletAddress":"MEIN-WALLET","amount":1000}'</span>
+
+          <span class="cmt"># 2. Geschützten Endpoint aufrufen</span>
+          curl http://localhost:3000/api/protected \
+          -H <span class="str">'Authorization: Bearer &lt;TOKEN&gt;'</span>
+
+          <span class="cmt"># 3. Kaution zurückfordern</span>
+          curl -X POST http://localhost:3000/api/refund \
+          -d <span class="str">'{"sessionId":"&lt;SESSION_ID&gt;"}'</span>
+        </div>
+      </div>
+
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span class="snippet-title">Environment — .env</span>
+          <span class="snippet-lang">Config</span>
+        </div>
+        <div class="snippet-body"><span class="cmt"># Mock-Modus (kein Blockchain nötig)</span>
+          USE_REAL_SC=false
+
+          <span class="cmt"># Testnet SC-Modus</span>
+          USE_REAL_SC=true
+          QUBIC_RPC=https://testnet-rpc.qubic.org
+          SC_ADDRESS=DEINE_CONTRACT_ADRESSE
+          SC_INDEX=1
+
+          <span class="cmt"># Mainnet SC-Modus</span>
+          QUBIC_RPC=https://rpc.qubic.org
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:20px; color:var(--muted); font-size:0.875rem;">
+      Vollständige Anleitungen für RPC API, qubic.org, Lite Node und Bob Node:
+      <a href="/docs/guide-integration.md" style="color:var(--accent2)">docs/guide-integration.md</a>
+    </p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── Footer ── -->
+  <footer>
+    <p>
+      QubicShield — Open Source DDoS Protection ·
+      <a href="https://qubic.org" target="_blank">qubic.org</a> ·
+      <a href="https://github.com" target="_blank">GitHub</a> ·
+      Smart Contract: <code style="font-size:0.8em; color:var(--accent2)">QubicShield.h</code>
+    </p>
+    <p style="margin-top:8px; color:#4b5563; font-size:0.78rem;">
+      <span data-lang="de" class="inline">Proof of Concept · Testnet only · Kein Mainnet-Einsatz ohne Security
+        Audit</span>
+      <span data-lang="en" class="inline">Proof of Concept · Testnet only · No mainnet use without security audit</span>
+    </p>
+  </footer>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    let currentToken = null;
+    let currentSession = null;
+    const BASE = '';  // same origin
+
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === lang.toUpperCase());
+      });
+      localStorage.setItem('qubicshield-lang', lang);
+    }
+    const savedLang = localStorage.getItem('qubicshield-lang');
+    if (savedLang) setLang(savedLang);
+
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    function showTab(id, btn) {
+      document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.demo-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+      if (id === 'tab-stats') loadStats();
+    }
+
+    // ── Output helpers ─────────────────────────────────────────────────────────
+    function setOutput(elId, data) {
+      const el = document.getElementById(elId);
+      el.textContent = JSON.stringify(data, null, 2);
+      el.classList.remove('empty');
+    }
+
+    function setResult(elId, type, msg) {
+      const el = document.getElementById(elId);
+      el.className = 'result-banner ' + type;
+      el.innerHTML = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : '⚠️ ') + msg;
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      if (loading) btn.innerHTML = '<span class="spinner"></span> Warten…';
+    }
+
+    // ── Normal flow ────────────────────────────────────────────────────────────
+    async function doDeposit() {
+      const wallet = document.getElementById('wallet').value.trim() || 'DEMO-WALLET';
+      const amount = parseInt(document.getElementById('amount').value) || 1000;
+      setLoading('btn-deposit', true);
+      document.getElementById('flow-result').className = 'result-banner';
+
+      try {
+        const res = await fetch(BASE + '/api/deposit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: wallet, amount }),
+        });
+        const data = await res.json();
+        setOutput('flow-output', data);
+
+        if (data.accessToken) {
+          currentToken = data.accessToken;
+          currentSession = data.sessionId;
+          setResult('flow-result', 'success',
+            `Deposit erstellt · Session: ${data.sessionId.slice(0, 8)}…`);
+          document.getElementById('btn-access').disabled = false;
+          document.getElementById('btn-refund').disabled = false;
+        } else {
+          setResult('flow-result', 'error', data.error || 'Deposit fehlgeschlagen');
+        }
+      } catch (e) {
+        setResult('flow-result', 'error', 'Server nicht erreichbar — ist npm start aktiv?');
+        setOutput('flow-output', { error: e.message });
+      } finally {
+        document.getElementById('btn-deposit').disabled = false;
+        document.getElementById('btn-deposit').textContent = '1 · Deposit erstellen';
+      }
+    }
+
+    async function doAccess() {
+      if (!currentToken) return;
+      setLoading('btn-access', true);
+
+      try {
+        const res = await fetch(BASE + '/api/protected', {
+          headers: { 'Authorization': 'Bearer ' + currentToken },
+        });
+        const data = await res.json();
+        setOutput('flow-output', data);
+
+        if (res.ok) {
+          setResult('flow-result', 'success',
+            `Zugang gewährt · Request #${data.requestCount} · noch ${data.remainingTime}s gültig`);
+        } else if (res.status === 403) {
+          setResult('flow-result', 'error', 'Deposit konfisziert (Angriff erkannt)');
+          currentToken = null;
+          document.getElementById('btn-access').disabled = true;
+          document.getElementById('btn-refund').disabled = true;
+        } else {
+          setResult('flow-result', 'error', data.error || 'Fehler');
+        }
+      } catch (e) {
+        setResult('flow-result', 'error', 'Server nicht erreichbar');
+      } finally {
+        document.getElementById('btn-access').disabled = false;
+        document.getElementById('btn-access').textContent = '2 · Geschützten Endpoint aufrufen';
+      }
+    }
+
+    async function doRefund() {
+      if (!currentSession) return;
+      setLoading('btn-refund', true);
+
+      try {
+        const res = await fetch(BASE + '/api/refund', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: currentSession }),
+        });
+        const data = await res.json();
+        setOutput('flow-output', data);
+
+        if (data.success) {
+          setResult('flow-result', 'success',
+            `${data.refundedAmount} QU zurückerstattet — Kaution vollständig zurück!`);
+          currentToken = null; currentSession = null;
+          document.getElementById('btn-access').disabled = true;
+          document.getElementById('btn-refund').disabled = true;
+        } else {
+          setResult('flow-result', 'warn', data.message || 'Rückerstattung fehlgeschlagen');
+        }
+      } catch (e) {
+        setResult('flow-result', 'error', 'Server nicht erreichbar');
+      } finally {
+        document.getElementById('btn-refund').disabled = false;
+        document.getElementById('btn-refund').textContent = '3 · Kaution zurückfordern';
+      }
+    }
+
+    // ── Attack simulation ──────────────────────────────────────────────────────
+    async function doAttack() {
+      const wallet = document.getElementById('attack-wallet').value.trim() || 'ATTACKER';
+      const amount = parseInt(document.getElementById('attack-amount').value) || 5000;
+
+      document.getElementById('btn-attack').disabled = true;
+      document.getElementById('btn-attack').innerHTML = '<span class="spinner"></span> Angriff läuft…';
+      document.getElementById('attack-result').className = 'result-banner';
+      document.getElementById('split-vis').style.display = 'none';
+      setOutput('attack-output', { status: 'Erstelle Deposit…' });
+
+      try {
+        // Step 1: deposit
+        const depRes = await fetch(BASE + '/api/deposit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: wallet, amount }),
+        });
+        const depData = await depRes.json();
+        if (!depData.accessToken) {
+          setResult('attack-result', 'error', depData.error || 'Deposit fehlgeschlagen');
+          return;
+        }
+
+        const token = depData.accessToken;
+        const session = depData.sessionId;
+
+        setOutput('attack-output', {
+          step: '1/3 — Deposit erstellt',
+          sessionId: session.slice(0, 8) + '…',
+          amount,
+        });
+
+        // Step 2: flood requests
+        const FLOOD = 55;
+        setOutput('attack-output', {
+          step: `2/3 — Sende ${FLOOD} Anfragen in schneller Folge…`,
+          target: '/api/protected',
+        });
+
+        const promises = [];
+        for (let i = 0; i < FLOOD; i++) {
+          promises.push(fetch(BASE + '/api/protected', {
+            headers: { 'Authorization': 'Bearer ' + token },
+          }));
+        }
+        const responses = await Promise.all(promises);
+        const statuses = responses.map(r => r.status);
+        const forfeited = responses.some(r => r.status === 403);
+
+        // Step 3: show result
+        if (forfeited) {
+          const forfeitRes = responses.find(r => r.status === 403);
+          const forfeitData = await forfeitRes.json();
+
+          const half = Math.floor(amount / 2);
+          setOutput('attack-output', {
+            step: '3/3 — Ergebnis',
+            status: 'DEPOSIT KONFISZIERT ⚡',
+            requestsSent: FLOOD,
+            statuses: [...new Set(statuses)],
+            forfeitedAmount: forfeitData.forfeitedAmount ?? amount,
+            distribution: forfeitData.distribution ?? {
+              burned: half, toVictim: half,
+              note: '50% verbrannt · 50% ans Opfer'
+            },
+          });
+
+          setResult('attack-result', 'error',
+            `Angriff erkannt · ${amount} QU konfisziert · ${half} QU verbrannt`);
+
+          document.getElementById('split-burn-val').textContent = half + ' QU verbrannt';
+          document.getElementById('split-victim-val').textContent = half + ' QU ans Opfer';
+          document.getElementById('split-vis').style.display = 'block';
+        } else {
+          setOutput('attack-output', {
+            step: '3/3 — Kein Angriff erkannt',
+            note: 'Schwelle nicht überschritten — erhöhe die Flood-Anzahl oder starte den Test erneut.',
+          });
+          setResult('attack-result', 'warn', 'Schwelle nicht überschritten');
+        }
+      } catch (e) {
+        setResult('attack-result', 'error', 'Server nicht erreichbar — ist npm start aktiv?');
+        setOutput('attack-output', { error: e.message });
+      } finally {
+        document.getElementById('btn-attack').disabled = false;
+        document.getElementById('btn-attack').textContent = '⚡ Angriff simulieren';
+      }
+    }
+
+    // ── Stats ──────────────────────────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res = await fetch(BASE + '/api/stats');
+        const data = await res.json();
+        setOutput('stats-output', data);
+
+        document.getElementById('s-total').textContent = data.totalDeposits ?? '—';
+        document.getElementById('s-active').textContent = data.activeSessions ?? '—';
+        document.getElementById('s-held').textContent = (data.heldAmount ?? 0).toLocaleString() + ' QU';
+        document.getElementById('s-refunded').textContent = (data.refundedAmount ?? 0).toLocaleString() + ' QU';
+        document.getElementById('s-forfeited').textContent = (data.forfeitedAmount ?? 0).toLocaleString() + ' QU';
+        document.getElementById('s-burned').textContent = (data.forfeitedToBurn ?? 0).toLocaleString() + ' QU';
+        document.getElementById('s-victim').textContent = (data.forfeitedToVictim ?? 0).toLocaleString() + ' QU';
+      } catch (e) {
+        document.getElementById('stats-output').textContent =
+          'Server nicht erreichbar. Starte den Server mit: npm start';
+      }
+    }
+
+    // ── Server-Status Badge ────────────────────────────────────────────────────
+    async function checkServerStatus() {
+      const badge = document.getElementById('server-badge');
+      const dot = document.getElementById('server-dot');
+      const label = document.getElementById('server-label');
+      try {
+        await fetch('/api/stats');
+        badge.className = 'badge-protected';
+        dot.className = 'dot-live';
+        label.textContent = document.body.classList.contains('lang-en') ? 'Server running' : 'Server läuft';
+      } catch {
+        badge.className = 'badge-offline';
+        dot.className = 'dot-offline';
+        label.textContent = 'Server offline';
+      }
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    checkServerStatus();
+    setInterval(checkServerStatus, 10000);
+    loadStats();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QubicShield — Demo Simulation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --text:      #c9d1d9;
+      --muted:     #8b949e;
+      --accent:    #7c3aed;
+      --accent2:   #06b6d4;
+      --success:   #10b981;
+      --danger:    #ef4444;
+      --warn:      #f59e0b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Language switch ── */
+    [data-lang] { display: none; }
+    body.lang-de [data-lang="de"] { display: block; }
+    body.lang-en [data-lang="en"] { display: block; }
+    body.lang-de [data-lang="de"].inline,
+    body.lang-en [data-lang="en"].inline { display: inline; }
+
+    /* ── Top Nav ── */
+    nav {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 1.1rem; color: var(--text);
+      text-decoration: none;
+    }
+    .shield-icon { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); text-decoration: none; transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--bg3); border-color: var(--border); }
+    .nav-btn.active { color: var(--accent2); background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); font-weight: 600; }
+    .badge-protected {
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.4);
+      color: var(--success);
+      font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dot-live {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+    .dot-offline {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--danger);
+    }
+    .badge-offline {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: var(--danger);
+      font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── Language button ── */
+    .lang-switch { display: flex; gap: 0.3rem; align-items: center; }
+    .lang-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      font-size: 0.75rem; font-weight: 600; padding: 3px 8px;
+      border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    }
+    .lang-btn.active, .lang-btn:hover { border-color: var(--accent); color: #c4b5fd; background: rgba(124,58,237,0.1); }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 860px; margin: 0 auto;
+      padding: 48px 24px 32px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #c4b5fd 0%, #06b6d4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 1.05rem; color: var(--muted);
+      max-width: 600px; margin: 0 auto 32px;
+    }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 11px 22px; border-radius: 8px; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+    }
+    .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .icon { font-size: 1.1rem; }
+
+    /* ── Sections ── */
+    .section { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+    .section-title {
+      font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .section-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
+
+    /* ── Demo card ── */
+    .demo-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px;
+      font-family: 'Consolas', 'Cascadia Code', monospace;
+      font-size: 0.82rem; color: #a5f3fc;
+      white-space: pre-wrap; word-break: break-all;
+      min-height: 80px; max-height: 320px; overflow-y: auto;
+      margin-top: 16px;
+    }
+    .code-block.empty { color: var(--muted); font-style: italic; }
+
+    /* ── Result banner ── */
+    .result-banner {
+      display: none; padding: 12px 16px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 600; margin-top: 16px;
+    }
+    .result-banner.success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--success); display: flex; gap: 8px; align-items: center; }
+    .result-banner.error   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.4);  color: var(--danger);  display: flex; gap: 8px; align-items: center; }
+    .result-banner.warn    { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: var(--warn);    display: flex; gap: 8px; align-items: center; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* ── Stepper ── */
+    .stepper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .stepper-title {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 14px;
+    }
+    .step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--bg3);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+      background: var(--bg3); color: var(--muted); border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .step-icon.active   { background: rgba(31,111,235,0.13); color: #58a6ff; border-color: #58a6ff; animation: pulse-blue 1s infinite; }
+    .step-icon.done     { background: rgba(35,134,54,0.2); color: #3fb950; border-color: #238636; }
+    .step-icon.error    { background: rgba(139,26,26,0.2); color: #f85149; border-color: #f85149; }
+    @keyframes pulse-blue { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .step-content { flex: 1; }
+    .step-label { font-size: 0.84rem; font-weight: 600; color: var(--text); }
+    .step-detail { font-size: 0.75rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+    /* ── Right panel ── */
+    .right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+    .panel {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .panel-header {
+      padding: 10px 14px; background: var(--bg3);
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-body { padding: 14px; }
+
+    /* ── Browser Mockup ── */
+    .browser-mock {
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .browser-bar {
+      background: var(--bg3); border-bottom: 1px solid var(--border);
+      padding: 9px 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .browser-dots { display: flex; gap: 5px; flex-shrink: 0; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .bd-red    { background: #ef4444; }
+    .bd-yellow { background: #f59e0b; }
+    .bd-green  { background: #10b981; }
+    .browser-url {
+      flex: 1; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 4px 10px;
+      font-size: 0.75rem; font-family: monospace; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .browser-http {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 4px; flex-shrink: 0; display: none;
+    }
+    .browser-http.ok  { background: rgba(16,185,129,0.2); color: var(--success); border: 1px solid rgba(16,185,129,0.4); display: block; }
+    .browser-http.err { background: rgba(239,68,68,0.2);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.4);  display: block; }
+    .browser-content {
+      height: 160px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .browser-idle {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 0.82rem; text-align: center;
+    }
+    .browser-result {
+      text-align: center; padding: 20px; width: 100%;
+    }
+    .browser-result .http-code {
+      font-size: 3rem; font-weight: 800; line-height: 1; margin-bottom: 8px;
+    }
+    .browser-result .http-label {
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .browser-result .http-url {
+      font-size: 0.72rem; font-family: monospace; color: var(--accent2);
+      margin-top: 6px; word-break: break-all;
+    }
+    .browser-result.ok200 .http-code { color: var(--success); }
+    .browser-result.err4xx .http-code { color: var(--danger); }
+
+    /* ── Log ── */
+    .log-list {
+      list-style: none; max-height: 200px; overflow-y: auto;
+      font-family: monospace; font-size: 0.78rem;
+    }
+    .log-list li {
+      padding: 4px 0; border-bottom: 1px solid var(--bg3); line-height: 1.5;
+      display: flex; gap: 8px;
+    }
+    .log-list li:last-child { border-bottom: none; }
+    .log-time { color: var(--muted); flex-shrink: 0; }
+    .log-msg.ok      { color: #3fb950; }
+    .log-msg.err     { color: #f85149; }
+    .log-msg.info    { color: var(--text); }
+    .log-msg.warn    { color: #d29922; }
+
+    /* ── Result box ── */
+    .result-box {
+      padding: 14px; border-radius: 6px; font-size: 0.84rem; line-height: 1.6;
+      display: none;
+    }
+    .result-box.visible { display: block; }
+    .result-box.refund  { background: #1a3a20; border: 1px solid rgba(35,134,54,0.4); color: #3fb950; }
+    .result-box.forfeit { background: #3a1a1a; border: 1px solid rgba(139,26,26,0.4); color: #f85149; }
+    .result-box strong  { display: block; font-size: 1rem; margin-bottom: 6px; }
+
+    /* ── Stats grid ── */
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .stat-item {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
+    }
+    .stat-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 3px; }
+    .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--text); font-family: monospace; }
+    .stat-value.green  { color: #3fb950; }
+    .stat-value.red    { color: #f85149; }
+    .stat-value.blue   { color: #58a6ff; }
+    .stat-value.orange { color: #d29922; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 700px) {
+      .sim-layout { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body class="lang-de">
+
+<!-- ── Navigation ── -->
+<nav>
+  <a class="nav-brand" href="/">
+    <svg class="shield-icon" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
+            fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="1.5"/>
+      <path d="M9 12l2 2 4-4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    QubicShield
+  </a>
+  <div class="nav-links">
+    <a href="/" class="nav-btn">Home</a>
+    <a href="/demo.html" class="nav-btn active">Simulation</a>
+    <a href="/dashboard.html" class="nav-btn">Dashboard</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="badge-protected" id="server-badge">
+      <span class="dot-live" id="server-dot"></span>
+      <span id="server-label">Server läuft</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <p class="hero-eyebrow">QubicShield · Demo Simulation</p>
+  <h1>
+    <span data-lang="de">Automatische Simulation</span>
+    <span data-lang="en">Automated Simulation</span>
+  </h1>
+  <p>
+    <span data-lang="de">Deposit → Seitenaufruf → Refund oder DDoS-Forfeit → Statistiken</span>
+    <span data-lang="en">Deposit → page request → Refund or DDoS forfeit → Statistics</span>
+  </p>
+  <div class="hero-cta">
+    <button class="btn btn-primary" id="btn-google" onclick="runSim('google')">
+      <span class="icon">🌐</span>
+      <span data-lang="de" class="inline">Google Seite laden</span>
+      <span data-lang="en" class="inline">Load Google Page</span>
+    </button>
+    <button class="btn" id="btn-404" onclick="runSim('404')" style="background:#b91c1c;color:#fff;">
+      <span class="icon">💀</span>
+      <span data-lang="de" class="inline">404 Seite laden</span>
+      <span data-lang="en" class="inline">Load 404 Page</span>
+    </button>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Principle Banner ── -->
+<section class="section" style="padding-top: 24px; padding-bottom: 24px;">
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-left: 4px solid var(--accent2); border-radius: 0 8px 8px 0; padding: 12px 18px; font-size: 0.875rem; color: var(--muted);">
+    <span data-lang="de"><strong style="color:var(--accent2)">Grundprinzip:</strong> 1 Deposit = 1 Session = 1 Token. Eine erreichbare Seite (200) → Refund. Eine fehlerhafte Seite (404) → DDoS-Muster → Forfeit.</span>
+    <span data-lang="en"><strong style="color:var(--accent2)">Core principle:</strong> 1 Deposit = 1 Session = 1 Token. A reachable page (200) → Refund. A failing page (404) → DDoS pattern → Forfeit.</span>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Simulation ── -->
+<section class="section" id="simulation">
+  <h2 class="section-title">
+    <span data-lang="de">Simulationsablauf</span>
+    <span data-lang="en">Simulation Flow</span>
+  </h2>
+
+  <div class="sim-layout" style="display:grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start;">
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="stepper-title">
+        <span data-lang="de" class="inline">Ablauf</span>
+        <span data-lang="en" class="inline">Flow</span>
+      </div>
+
+      <div class="step" id="step-1">
+        <div class="step-icon" id="step-1-icon">1</div>
+        <div class="step-content">
+          <div class="step-label">
+            <span data-lang="de" class="inline">Deposit erstellen</span>
+            <span data-lang="en" class="inline">Create Deposit</span>
+          </div>
+          <div class="step-detail" id="step-1-detail">
+            <span data-lang="de" class="inline">100 QUBIC als Kaution hinterlegen</span>
+            <span data-lang="en" class="inline">100 QUBIC deposited as collateral</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step-2">
+        <div class="step-icon" id="step-2-icon">2</div>
+        <div class="step-content">
+          <div class="step-label">
+            <span data-lang="de" class="inline">Seite abrufen</span>
+            <span data-lang="en" class="inline">Fetch Page</span>
+          </div>
+          <div class="step-detail" id="step-2-detail">
+            <span data-lang="de" class="inline">HTTP-Status der Ziel-URL prüfen</span>
+            <span data-lang="en" class="inline">Check HTTP status of target URL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step-3">
+        <div class="step-icon" id="step-3-icon">3</div>
+        <div class="step-content">
+          <div class="step-label">
+            <span data-lang="de" class="inline">Auswertung</span>
+            <span data-lang="en" class="inline">Evaluation</span>
+          </div>
+          <div class="step-detail" id="step-3-detail">
+            <span data-lang="de" class="inline">200 → Refund &nbsp;|&nbsp; 404 → Forfeit</span>
+            <span data-lang="en" class="inline">200 → Refund &nbsp;|&nbsp; 404 → Forfeit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step-4">
+        <div class="step-icon" id="step-4-icon">4</div>
+        <div class="step-content">
+          <div class="step-label">Statistiken</div>
+          <div class="step-detail" id="step-4-detail">
+            <span data-lang="de" class="inline">Gesamtauswertung abrufen</span>
+            <span data-lang="en" class="inline">Fetch overall statistics</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right panel -->
+    <div class="right-panel">
+
+      <!-- Browser Mockup -->
+      <div class="panel">
+        <div class="panel-header">
+          <span data-lang="de" class="inline">Seitenvorschau</span>
+          <span data-lang="en" class="inline">Page Preview</span>
+        </div>
+        <div class="panel-body" style="padding:12px">
+          <div class="browser-mock">
+            <div class="browser-bar">
+              <div class="browser-dots">
+                <span class="bd-red"></span>
+                <span class="bd-yellow"></span>
+                <span class="bd-green"></span>
+              </div>
+              <div class="browser-url" id="browser-url">about:blank</div>
+              <div class="browser-http" id="browser-http"></div>
+            </div>
+            <div class="browser-content" id="browser-content">
+              <div class="browser-idle" id="browser-idle">
+                <span style="font-size:1.6rem">🌐</span>
+                <span id="browser-idle-text">
+                  <span data-lang="de" class="inline">Warte auf Simulation…</span>
+                  <span data-lang="en" class="inline">Waiting for simulation…</span>
+                </span>
+              </div>
+              <div class="browser-result" id="browser-result" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity log -->
+      <div class="panel">
+        <div class="panel-header">
+          <span data-lang="de" class="inline">Aktivitäts-Log</span>
+          <span data-lang="en" class="inline">Activity Log</span>
+        </div>
+        <div class="panel-body" style="padding:8px 14px">
+          <ul class="log-list" id="log-list">
+            <li>
+              <span class="log-time">––:––:––</span>
+              <span class="log-msg info">
+                <span data-lang="de" class="inline">Bereit. Bitte einen Button klicken.</span>
+                <span data-lang="en" class="inline">Ready. Please click a button.</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="result-box" id="result-box">
+        <strong id="result-title"></strong>
+        <span id="result-detail"></span>
+      </div>
+
+      <!-- Stats -->
+      <div class="panel" id="stats-panel" style="display:none">
+        <div class="panel-header">
+          <span data-lang="de" class="inline">Statistiken – /api/stats</span>
+          <span data-lang="en" class="inline">Statistics – /api/stats</span>
+        </div>
+        <div class="panel-body">
+          <div class="stats-grid" id="stats-grid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Footer ── -->
+<footer>
+  <p>
+    QubicShield — Open Source DDoS Protection ·
+    <a href="https://qubic.org" target="_blank">qubic.org</a> ·
+    Smart Contract: <code style="font-size:0.8em; color:var(--accent2)">QubicShield.h</code>
+  </p>
+  <p style="margin-top:8px; color:#4b5563; font-size:0.78rem;">
+    <span data-lang="de" class="inline">Proof of Concept · Testnet only · Kein Mainnet-Einsatz ohne Security Audit</span>
+    <span data-lang="en" class="inline">Proof of Concept · Testnet only · No mainnet use without security audit</span>
+  </p>
+</footer>
+
+<script>
+    const API = window.location.port === '3000' ? '' : 'http://localhost:3000';
+
+    const SCENARIOS = {
+      google: {
+        url:        'https://www.google.com',
+        probeUrl:   'https://example.com',   // actually fetchable via probe (google blocks CORS-fetch)
+        label_de:   'Google (example.com)',
+        label_en:   'Google (example.com)',
+      },
+      '404': {
+        url:        'https://httpbin.org/status/404',
+        probeUrl:   'https://httpbin.org/status/404',
+        label_de:   '404-Seite (httpbin.org)',
+        label_en:   '404 Page (httpbin.org)',
+      },
+    };
+
+    // ── Language ───────────────────────────────────────────────────────────────
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === lang.toUpperCase());
+      });
+      localStorage.setItem('qubicshield-lang', lang);
+    }
+    const savedLang = localStorage.getItem('qubicshield-lang');
+    if (savedLang) setLang(savedLang);
+
+    function lang() { return document.body.classList.contains('lang-en') ? 'en' : 'de'; }
+
+    // ── Log ────────────────────────────────────────────────────────────────────
+    function log(msg, type = 'info') {
+      const list = document.getElementById('log-list');
+      const now  = new Date().toLocaleTimeString('de-DE');
+      const li   = document.createElement('li');
+      li.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${type}">${msg}</span>`;
+      list.appendChild(li);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    // ── Stepper ────────────────────────────────────────────────────────────────
+    function stepSet(n, state, detail) {
+      const icon   = document.getElementById(`step-${n}-icon`);
+      const detEl  = document.getElementById(`step-${n}-detail`);
+      icon.className = 'step-icon ' + state;
+      if (state === 'done')   icon.textContent = '✓';
+      else if (state === 'error') icon.textContent = '✗';
+      else if (state === 'active') icon.textContent = '⟳';
+      else icon.textContent = String(n);
+      if (detail) detEl.textContent = detail;
+    }
+
+    function resetSteps() {
+      [1,2,3,4].forEach(n => stepSet(n, '', null));
+      document.getElementById('step-1-icon').textContent = '1';
+      document.getElementById('step-2-icon').textContent = '2';
+      document.getElementById('step-3-icon').textContent = '3';
+      document.getElementById('step-4-icon').textContent = '4';
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ── Browser Mockup helpers ─────────────────────────────────────────────────
+    function browserReset() {
+      document.getElementById('browser-url').textContent = 'about:blank';
+      const http = document.getElementById('browser-http');
+      http.textContent = ''; http.className = 'browser-http';
+      document.getElementById('browser-idle').style.display = 'flex';
+      document.getElementById('browser-result').style.display = 'none';
+    }
+
+    function browserNavigate(url) {
+      document.getElementById('browser-url').textContent = url;
+      const http = document.getElementById('browser-http');
+      http.textContent = '…'; http.className = 'browser-http';
+      http.style.display = 'block'; http.style.background = 'rgba(139,148,158,0.15)';
+      http.style.color = 'var(--muted)'; http.style.border = '1px solid var(--border)';
+      document.getElementById('browser-idle').style.display = 'flex';
+      document.getElementById('browser-result').style.display = 'none';
+    }
+
+    function browserShowStatus(url, status) {
+      document.getElementById('browser-url').textContent = url;
+      const http = document.getElementById('browser-http');
+      http.style.background = ''; http.style.color = ''; http.style.border = '';
+      const is200 = status === 200;
+      http.textContent = status ? `HTTP ${status}` : 'ERR';
+      http.className = 'browser-http ' + (is200 ? 'ok' : 'err');
+
+      document.getElementById('browser-idle').style.display = 'none';
+      const result = document.getElementById('browser-result');
+      result.style.display = 'block';
+      result.className = 'browser-result ' + (is200 ? 'ok200' : 'err4xx');
+      const L = lang();
+      const label = is200
+        ? (L === 'en' ? 'OK — Page reachable' : 'OK — Seite erreichbar')
+        : (L === 'en' ? 'Error — Page unreachable' : 'Fehler — Seite nicht erreichbar');
+      result.innerHTML = `
+        <div class="http-code">${status || '???'}</div>
+        <div class="http-label">${label}</div>
+        <div class="http-url">${url}</div>`;
+    }
+
+    // ── Main simulation ────────────────────────────────────────────────────────
+    async function runSim(scenario) {
+      const sc = SCENARIOS[scenario];
+      const L  = lang();
+
+      // Disable buttons
+      document.getElementById('btn-google').disabled = true;
+      document.getElementById('btn-404').disabled    = true;
+
+      // Reset UI
+      resetSteps();
+      document.getElementById('log-list').innerHTML = '';
+      document.getElementById('result-box').className = 'result-box';
+      document.getElementById('stats-panel').style.display = 'none';
+      browserReset();
+
+      // ── Step 1: Create deposit ──────────────────────────────────────────────
+      stepSet(1, 'active');
+      log(L === 'en' ? 'Creating deposit (100 QUBIC)…' : 'Erstelle Deposit (100 QUBIC)…', 'info');
+      await sleep(400);
+
+      let sessionId, accessToken;
+      try {
+        const r    = await fetch(`${API}/api/deposit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: 'demo-wallet', amount: 100 }),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? 'deposit failed');
+        sessionId   = data.sessionId;
+        accessToken = data.accessToken;
+        stepSet(1, 'done', L === 'en' ? `Token: ${accessToken.slice(0,8)}…` : `Token: ${accessToken.slice(0,8)}…`);
+        log(L === 'en' ? `✓ Deposit created — sessionId: ${sessionId.slice(0,8)}…` : `✓ Deposit erstellt — sessionId: ${sessionId.slice(0,8)}…`, 'ok');
+      } catch (e) {
+        stepSet(1, 'error', e.message);
+        log(`✗ ${e.message}`, 'err');
+        enableButtons();
+        return;
+      }
+
+      await sleep(500);
+
+      // ── Step 2: Load page / probe URL ───────────────────────────────────────
+      stepSet(2, 'active');
+      const urlLabel = sc.label_de;
+      log(L === 'en' ? `Probing: ${sc.probeUrl}` : `Prüfe URL: ${sc.probeUrl}`, 'info');
+
+      // Show URL in browser mockup (loading state)
+      browserNavigate(sc.url);
+
+      let httpStatus = 0;
+      try {
+        const r    = await fetch(`${API}/api/probe?url=${encodeURIComponent(sc.probeUrl)}`);
+        const data = await r.json();
+        httpStatus = data.status;
+        const statusColor = httpStatus === 200 ? 'ok' : 'err';
+        browserShowStatus(sc.probeUrl, httpStatus);
+        stepSet(2, httpStatus === 200 ? 'done' : 'error', `HTTP ${httpStatus} — ${sc.probeUrl}`);
+        log(`HTTP ${httpStatus} — ${sc.probeUrl}`, statusColor);
+      } catch (e) {
+        httpStatus = 0;
+        browserShowStatus(sc.probeUrl, 0);
+        stepSet(2, 'error', L === 'en' ? 'Probe failed' : 'Probe fehlgeschlagen');
+        log(`✗ Probe error: ${e.message}`, 'err');
+      }
+
+      await sleep(600);
+
+      // ── Step 3: Evaluate ────────────────────────────────────────────────────
+      stepSet(3, 'active');
+      await sleep(400);
+
+      if (httpStatus === 200) {
+        // ── Happy path: Refund ─────────────────────────────────────────────
+        log(L === 'en' ? 'Page reachable → triggering refund…' : 'Seite erreichbar → löse Refund aus…', 'info');
+        try {
+          const r    = await fetch(`${API}/api/refund`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          });
+          const data = await r.json();
+          if (data.success) {
+            stepSet(3, 'done', L === 'en' ? `Refunded ${data.refundedAmount} QUBIC` : `${data.refundedAmount} QUBIC erstattet`);
+            log(L === 'en' ? `✓ Refund successful — ${data.refundedAmount} QUBIC returned` : `✓ Refund erfolgreich — ${data.refundedAmount} QUBIC zurückerstattet`, 'ok');
+            showResult('refund',
+              L === 'en' ? '✓ Legitimate access — Deposit refunded' : '✓ Legitimer Zugriff — Deposit erstattet',
+              L === 'en' ? `The page ${sc.probeUrl} returned HTTP 200. The deposit of ${data.refundedAmount} QUBIC was refunded to the wallet.`
+                         : `Die Seite ${sc.probeUrl} antwortete mit HTTP 200. Der Deposit von ${data.refundedAmount} QUBIC wurde an die Wallet zurückerstattet.`
+            );
+          } else {
+            throw new Error(data.message);
+          }
+        } catch (e) {
+          stepSet(3, 'error', e.message);
+          log(`✗ Refund failed: ${e.message}`, 'err');
+        }
+
+      } else {
+        // ── Attack path: DDoS simulation → Forfeit ────────────────────────
+        log(L === 'en' ? `Page returned ${httpStatus} → simulating DDoS attack…` : `Seite antwortete mit ${httpStatus} → simuliere DDoS-Angriff…`, 'warn');
+        stepSet(3, 'active', L === 'en' ? 'Firing 110 requests…' : 'Sende 110 Anfragen…');
+
+        let forfeitedAt = null;
+        for (let i = 0; i < 110; i++) {
+          const r = await fetch(`${API}/api/protected`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+          });
+          if (r.status === 403) {
+            forfeitedAt = i + 1;
+            break;
+          }
+          if (i % 15 === 14) {
+            log(L === 'en' ? `↑ ${i + 1} requests sent…` : `↑ ${i + 1} Anfragen gesendet…`, 'warn');
+            await sleep(0);
+          }
+        }
+
+        if (forfeitedAt) {
+          stepSet(3, 'error', L === 'en' ? `Forfeited after ${forfeitedAt} requests` : `Forfeit nach ${forfeitedAt} Anfragen`);
+          log(L === 'en' ? `✗ Attack detected after ${forfeitedAt} requests — deposit forfeited` : `✗ Angriff erkannt nach ${forfeitedAt} Anfragen — Deposit einbehalten`, 'err');
+          showResult('forfeit',
+            L === 'en' ? '✗ Attack detected — Deposit forfeited' : '✗ Angriff erkannt — Deposit einbehalten',
+            L === 'en' ? `The page ${sc.probeUrl} returned HTTP ${httpStatus}. After ${forfeitedAt} requests the attack pattern was detected. The deposit of 100 QUBIC was forfeited.`
+                       : `Die Seite ${sc.probeUrl} antwortete mit HTTP ${httpStatus}. Nach ${forfeitedAt} Anfragen wurde das Angriffsmuster erkannt. Der Deposit von 100 QUBIC wurde einbehalten.`
+          );
+        } else {
+          stepSet(3, 'error', L === 'en' ? 'No forfeit triggered' : 'Kein Forfeit ausgelöst');
+          log(L === 'en' ? '? 110 requests sent — no forfeit triggered' : '? 110 Anfragen gesendet — kein Forfeit ausgelöst', 'warn');
+        }
+      }
+
+      await sleep(500);
+
+      // ── Step 4: Stats ───────────────────────────────────────────────────────
+      stepSet(4, 'active');
+      log(L === 'en' ? 'Fetching statistics…' : 'Rufe Statistiken ab…', 'info');
+      await sleep(300);
+
+      try {
+        const r    = await fetch(`${API}/api/stats`);
+        const data = await r.json();
+        stepSet(4, 'done', L === 'en' ? 'Done' : 'Fertig');
+        log(L === 'en' ? '✓ Statistics loaded' : '✓ Statistiken geladen', 'ok');
+        renderStats(data, L);
+      } catch (e) {
+        stepSet(4, 'error', e.message);
+        log(`✗ ${e.message}`, 'err');
+      }
+
+      enableButtons();
+    }
+
+    function showResult(type, title, detail) {
+      const box = document.getElementById('result-box');
+      document.getElementById('result-title').textContent  = title;
+      document.getElementById('result-detail').textContent = detail;
+      box.className = `result-box visible ${type}`;
+    }
+
+    function renderStats(data, L) {
+      const panel = document.getElementById('stats-panel');
+      const grid  = document.getElementById('stats-grid');
+      panel.style.display = 'block';
+      grid.innerHTML = `
+        <div class="stat-item">
+          <div class="stat-label">${L === 'en' ? 'Total Deposits' : 'Deposits gesamt'}</div>
+          <div class="stat-value blue">${data.totalDeposits}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">${L === 'en' ? 'Active Sessions' : 'Aktive Sessions'}</div>
+          <div class="stat-value blue">${data.activeSessions}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">${L === 'en' ? 'Held Amount' : 'Gebundenes QUBIC'}</div>
+          <div class="stat-value orange">${data.heldAmount}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">${L === 'en' ? 'Refunded' : 'Erstattet'}</div>
+          <div class="stat-value green">${data.refundedAmount} QUBIC (${data.refundedCount}×)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">${L === 'en' ? 'Forfeited' : 'Einbehalten'}</div>
+          <div class="stat-value red">${data.forfeitedAmount} QUBIC (${data.forfeitedCount}×)</div>
+        </div>
+      `;
+    }
+
+    function enableButtons() {
+      document.getElementById('btn-google').disabled = false;
+      document.getElementById('btn-404').disabled    = false;
+    }
+
+    async function checkServerStatus() {
+      const badge = document.getElementById('server-badge');
+      const dot   = document.getElementById('server-dot');
+      const label = document.getElementById('server-label');
+      try {
+        await fetch('/api/stats');
+        badge.className    = 'badge-protected';
+        dot.className      = 'dot-live';
+        label.textContent  = document.body.classList.contains('lang-en') ? 'Server running' : 'Server läuft';
+      } catch {
+        badge.className    = 'badge-offline';
+        dot.className      = 'dot-offline';
+        label.textContent  = 'Server offline';
+      }
+    }
+
+    checkServerStatus();
+    setInterval(checkServerStatus, 10000);
+</script>
+</body>
+</html>

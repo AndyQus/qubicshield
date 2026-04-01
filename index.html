@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QubicShield — Smart Contract Guide</title>
+  <style>
+    :root {
+      --bg:        #0a0e1a;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    #1e2d45;
+      --accent:    #3b82f6;
+      --accent2:   #8b5cf6;
+      --green:     #10b981;
+      --orange:    #f59e0b;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --code-bg:   #0d1117;
+      --code-border: #30363d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .header-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+    .header-brand-text { display: flex; flex-direction: column; gap: 1px; }
+
+    .header-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .header-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    /* ── LANGUAGE SWITCH ── */
+    .lang-switch {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.05em;
+    }
+
+    .lang-btn.active,
+    .lang-btn:hover {
+      border-color: var(--accent2);
+      color: #c4b5fd;
+      background: rgba(139,92,246,0.1);
+    }
+
+    /* ── LAYOUT ── */
+    .layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR / TOC ── */
+    .toc {
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .toc::-webkit-scrollbar { width: 4px; }
+    .toc::-webkit-scrollbar-track { background: transparent; }
+    .toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .toc-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .toc a {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toc a:hover,
+    .toc a.active {
+      color: #c4b5fd;
+      background: rgba(139,92,246,0.08);
+    }
+
+    .toc a .num {
+      color: var(--accent2);
+      font-weight: 700;
+      margin-right: 0.3rem;
+    }
+
+    /* Force TOC labels to stay inline so number + text stay on one line */
+    .toc a [data-lang] { display: none; }
+    body.lang-de .toc a [data-lang="de"],
+    body.lang-en .toc a [data-lang="en"] { display: inline; }
+
+    /* ── CONTENT ── */
+    .content section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 84px;
+    }
+
+    .section-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent2);
+      margin-bottom: 0.4rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h2 .icon { font-size: 1.2rem; }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #c4b5fd;
+      margin: 1.2rem 0 0.5rem;
+    }
+
+    p { color: #94a3b8; margin-bottom: 0.8rem; }
+
+    strong { color: var(--text); }
+
+    ul, ol {
+      color: #94a3b8;
+      padding-left: 1.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    li { margin-bottom: 0.3rem; }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      overflow-x: auto;
+      margin: 0.8rem 0 1rem;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      color: #e6edf3;
+    }
+
+    p code, li code {
+      background: rgba(139,92,246,0.12);
+      color: #c4b5fd;
+      padding: 0.15rem 0.4rem;
+      border-radius: 5px;
+      font-size: 0.85em;
+    }
+
+    /* ── TABLES ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.8rem 0 1rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(30,45,69,0.5);
+      color: #94a3b8;
+      vertical-align: top;
+    }
+
+    tr:hover td { background: rgba(30,45,69,0.25); }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin: 0.8rem 0;
+      border-left: 3px solid;
+      font-size: 0.875rem;
+    }
+
+    .callout-blue  { background: rgba(59,130,246,0.07);  border-color: var(--accent);  color: #93c5fd; }
+    .callout-green { background: rgba(16,185,129,0.07);  border-color: var(--green);   color: #6ee7b7; }
+    .callout-purple{ background: rgba(139,92,246,0.07);  border-color: var(--accent2); color: #c4b5fd; }
+    .callout-orange{ background: rgba(245,158,11,0.07);  border-color: var(--orange);  color: #fcd34d; }
+
+    .callout strong { color: inherit; }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.78rem;
+      color: #8b949e;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.7;
+    }
+
+    /* ── CARD GRID (procedure vs function) ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .card.blue  { border-top: 3px solid var(--accent); }
+    .card.purple{ border-top: 3px solid var(--accent2); }
+
+    .card-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+
+    .card.blue   .card-label { color: #60a5fa; }
+    .card.purple .card-label { color: #a78bfa; }
+
+    .card ul { margin: 0; }
+    .card li { font-size: 0.85rem; }
+
+    /* ── TODO LIST ── */
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.7rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .todo-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── LANG VISIBILITY ── */
+    [data-lang] { display: none; }
+    body.lang-de [data-lang="de"] { display: block; }
+    body.lang-en [data-lang="en"] { display: block; }
+    body.lang-de [data-lang="de"].inline,
+    body.lang-en [data-lang="en"].inline { display: inline; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .card-grid { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body class="lang-de">
+
+<!-- ═══════════════════════════════════════════════════════════════════ HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-brand">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
+              fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="1.5"/>
+        <path d="M9 12l2 2 4-4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="header-brand-text">
+        <div class="header-title">QubicShield — Smart Contract Guide</div>
+        <div class="header-sub">
+          <span data-lang="de">Lernjournal — alles erklärt, zum Nachlesen</span>
+          <span data-lang="en">Learning Journal — everything explained, for reference</span>
+        </div>
+      </div>
+    </div>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════ MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- ── SIDEBAR TOC ── -->
+  <nav class="toc">
+    <div class="toc-title">
+      <span data-lang="de">Inhalt</span>
+      <span data-lang="en">Contents</span>
+    </div>
+    <a href="#s1"><span class="num">1</span> <span data-lang="de">Was ist ein SC?</span><span data-lang="en">What is a SC?</span></a>
+    <a href="#s2"><span class="num">2</span> <span data-lang="de">Warum Qubic?</span><span data-lang="en">Why Qubic?</span></a>
+    <a href="#s3"><span class="num">3</span> <span data-lang="de">Mock vs. SC</span><span data-lang="en">Mock vs. SC</span></a>
+    <a href="#s4"><span class="num">4</span> <span data-lang="de">Übersetzung</span><span data-lang="en">Translation</span></a>
+    <a href="#s5"><span class="num">5</span> Procedure vs. Function</a>
+    <a href="#s6"><span class="num">6</span> <span data-lang="de">QPI-Regeln</span><span data-lang="en">QPI Rules</span></a>
+    <a href="#s7"><span class="num">7</span> DepositEntry</a>
+    <a href="#s8"><span class="num">8</span> id &amp; K12</a>
+    <a href="#s9"><span class="num">9</span> <span data-lang="de">Tick-Zeit</span><span data-lang="en">Tick Time</span></a>
+    <a href="#s10"><span class="num">10</span> Hooks</a>
+    <a href="#s11"><span class="num">11</span> <span data-lang="de">Sicherheit</span><span data-lang="en">Security</span></a>
+    <a href="#s12"><span class="num">12</span> <span data-lang="de">Registrierung</span><span data-lang="en">Registration</span></a>
+    <a href="#s13"><span class="num">13</span> <span data-lang="de">Gesamtbild</span><span data-lang="en">Big Picture</span></a>
+    <a href="#s14"><span class="num">14</span> WithdrawForfeited</a>
+    <a href="#s15"><span class="num">15</span> <span data-lang="de">IPO &amp; Dividenden</span><span data-lang="en">IPO &amp; Dividends</span></a>
+    <a href="#s16"><span class="num">16</span> <span data-lang="de">Token-Entropie &amp; Struct</span><span data-lang="en">Token Entropy &amp; Struct</span></a>
+    <a href="#s18"><span class="num">18</span> TypeScript SDK</a>
+    <a href="#s19"><span class="num">19</span> <span data-lang="de">Demo starten</span><span data-lang="en">Running the Demo</span></a>
+    <a href="#s20"><span class="num">20</span> <span data-lang="de">DDoS-Erkennung</span><span data-lang="en">DDoS Detection</span></a>
+    <a href="#s17"><span class="num">17</span> <span data-lang="de">Nächste Schritte</span><span data-lang="en">Next Steps</span></a>
+    <a href="#s21"><span class="num">21</span> <span data-lang="de">Offene Probleme</span><span data-lang="en">Open Issues</span></a>
+  </nav>
+
+  <!-- ── CONTENT ── -->
+  <main class="content">
+
+    <!-- 1 -->
+    <section id="s1">
+      <div class="section-num">01</div>
+      <h2><span class="icon">🧠</span>
+        <span data-lang="de">Was ist ein Qubic Smart Contract?</span>
+        <span data-lang="en">What is a Qubic Smart Contract?</span>
+      </h2>
+      <div data-lang="de">
+        <p>Ein Smart Contract (SC) auf Qubic ist eine <strong>einzelne C++-Datei</strong>, die mit der Qubic Public Interface (QPI) geschrieben wird. Der Code läuft nicht auf einem Server — er läuft gleichzeitig auf allen 676 Qubic-Computern (den sogenannten "Computors") im Netzwerk.</p>
+        <ul>
+          <li><strong>Kein Server nötig</strong> — der Code ist immer online, solange das Qubic-Netzwerk läuft</li>
+          <li><strong>Unveränderlich</strong> — einmal deployed kann der Code nicht heimlich geändert werden</li>
+          <li><strong>Transparent</strong> — jeder kann den Code lesen und prüfen</li>
+          <li><strong>Kein Vertrauen nötig</strong> — der SC erzwingt die Regeln, kein Mensch entscheidet</li>
+        </ul>
+      </div>
+      <div data-lang="en">
+        <p>A Smart Contract (SC) on Qubic is a <strong>single C++ file</strong> written using the Qubic Public Interface (QPI). The code does not run on a server — it runs simultaneously on all 676 Qubic computers ("Computors") in the network.</p>
+        <ul>
+          <li><strong>No server needed</strong> — the code is always online as long as the Qubic network runs</li>
+          <li><strong>Immutable</strong> — once deployed, the code cannot be secretly changed</li>
+          <li><strong>Transparent</strong> — anyone can read and verify the code</li>
+          <li><strong>Trustless</strong> — the SC enforces the rules; no human decides</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="s2">
+      <div class="section-num">02</div>
+      <h2><span class="icon">⚡</span>
+        <span data-lang="de">Warum funktioniert QubicShield nur auf Qubic?</span>
+        <span data-lang="en">Why does QubicShield only work on Qubic?</span>
+      </h2>
+      <div data-lang="de">
+        <p>Das Herzstück von QubicShield ist die <strong>Rückzahlung des Deposits</strong> an legitime Nutzer. Das kostet auf anderen Blockchains Geld:</p>
+      </div>
+      <div data-lang="en">
+        <p>The core of QubicShield is the <strong>refund of the deposit</strong> to legitimate users. On other blockchains this costs money:</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Blockchain</th>
+            <th><span data-lang="de">Problem</span><span data-lang="en">Problem</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ethereum</td>
+            <td>
+              <span data-lang="de">Jede <code>transfer()</code>-Transaktion kostet Gas. Bei einem Deposit von 0,001 EUR kostet die Rückzahlung oft mehr als der Deposit → Modell kaputt</span>
+              <span data-lang="en">Every <code>transfer()</code> transaction costs gas. With a deposit of $0.001, the refund gas fee often exceeds the deposit itself → model breaks</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Bitcoin</td>
+            <td>
+              <span data-lang="de">Keine Smart Contracts mit dieser Logik möglich</span>
+              <span data-lang="en">No smart contracts with this kind of logic</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Qubic</strong></td>
+            <td>
+              <div class="callout callout-green" style="margin:0">
+                <span data-lang="de"><strong>Zero Transaction Fees</strong> — Rückzahlungen kosten nichts. Das Modell funktioniert.</span>
+                <span data-lang="en"><strong>Zero Transaction Fees</strong> — refunds cost nothing. The model works.</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3 -->
+    <section id="s3">
+      <div class="section-num">03</div>
+      <h2><span class="icon">🔄</span>
+        <span data-lang="de">Der Unterschied: Mock vs. echter Smart Contract</span>
+        <span data-lang="en">The Difference: Mock vs. Real Smart Contract</span>
+      </h2>
+      <div data-lang="de">
+        <p>Im Demo-Server gibt es eine Datei <code>src/depositManager.ts</code>. Die sieht professionell aus, aber sie ist ein <strong>Mock</strong> — alle Daten leben nur im RAM:</p>
+      </div>
+      <div data-lang="en">
+        <p>The demo server has a file <code>src/depositManager.ts</code>. It looks professional but it is a <strong>mock</strong> — all data lives only in RAM:</p>
+      </div>
+      <div class="card-grid">
+        <div class="card blue">
+          <div class="card-label">depositManager.ts (Mock)</div>
+          <ul>
+            <li><span data-lang="de">Deposits: <code>JavaScript Map()</code> — weg bei Neustart</span><span data-lang="en">Deposits: <code>JavaScript Map()</code> — lost on restart</span></li>
+            <li><span data-lang="de">Transfers: simuliert, kein echtes Geld</span><span data-lang="en">Transfers: simulated, no real money</span></li>
+            <li><span data-lang="de">Vertrauen: du musst dem Server vertrauen</span><span data-lang="en">Trust: you must trust the server operator</span></li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <div class="card-label">QubicShield.h (Smart Contract)</div>
+          <ul>
+            <li><span data-lang="de">Deposits: Blockchain — permanent, unveränderlich</span><span data-lang="en">Deposits: Blockchain — permanent, immutable</span></li>
+            <li><span data-lang="de">Transfers: <code>qpi.transfer()</code> — echtes Geld</span><span data-lang="en">Transfers: <code>qpi.transfer()</code> — real money</span></li>
+            <li><span data-lang="de">Vertrauen: niemand nötig — der Code ist die Regel</span><span data-lang="en">Trust: nobody needed — the code is the rule</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section id="s4">
+      <div class="section-num">04</div>
+      <h2><span class="icon">🗺️</span>
+        <span data-lang="de">Die Übersetzung: Mock → Smart Contract</span>
+        <span data-lang="en">The Translation: Mock → Smart Contract</span>
+      </h2>
+      <div data-lang="de"><p>Jede Funktion im Mock hat ein Gegenstück im SC:</p></div>
+      <div data-lang="en"><p>Every function in the mock has a counterpart in the SC:</p></div>
+      <table>
+        <thead>
+          <tr>
+            <th>depositManager.ts</th>
+            <th>QubicShield.h</th>
+            <th>Typ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>createDeposit()</code></td><td><code>PUBLIC_PROCEDURE(Deposit)</code></td><td>Procedure</td></tr>
+          <tr><td><code>refundDeposit()</code></td><td><code>PUBLIC_PROCEDURE(Refund)</code></td><td>Procedure</td></tr>
+          <tr><td><code>forfeitDeposit()</code></td><td><code>PUBLIC_PROCEDURE(Forfeit)</code></td><td>Procedure</td></tr>
+          <tr><td><code>validateToken()</code></td><td><code>PUBLIC_FUNCTION(ValidateSession)</code></td><td>Function</td></tr>
+          <tr><td><code>getStats()</code></td><td><code>PUBLIC_FUNCTION(GetStats)</code></td><td>Function</td></tr>
+          <tr><td><span data-lang="de">Auto-Expire (setTimeout)</span><span data-lang="en">Auto-Expire (setTimeout)</span></td><td><code>BEGIN_TICK</code> Hook</td><td>Tick-Hook</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5 -->
+    <section id="s5">
+      <div class="section-num">05</div>
+      <h2><span class="icon">⚖️</span>Procedure vs. Function</h2>
+      <div data-lang="de"><p>In Qubic gibt es zwei Arten von Entry Points — der wichtigste Unterschied:</p></div>
+      <div data-lang="en"><p>In Qubic there are two types of entry points — the most important distinction:</p></div>
+      <div class="card-grid">
+        <div class="card blue">
+          <div class="card-label">PUBLIC_PROCEDURE</div>
+          <ul>
+            <li><span data-lang="de">Darf State <strong>verändern</strong></span><span data-lang="en">May <strong>modify</strong> state</span></li>
+            <li><span data-lang="de">Darf QUBIC <strong>transferieren</strong></span><span data-lang="en">May <strong>transfer</strong> QUBIC</span></li>
+            <li><span data-lang="de">Kostet Compute</span><span data-lang="en">Costs compute</span></li>
+            <li><span data-lang="de">Beispiele: Deposit, Refund, Forfeit</span><span data-lang="en">Examples: Deposit, Refund, Forfeit</span></li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <div class="card-label">PUBLIC_FUNCTION</div>
+          <ul>
+            <li><span data-lang="de">Darf State nur <strong>lesen</strong></span><span data-lang="en">May only <strong>read</strong> state</span></li>
+            <li><span data-lang="de">Kein Transfer möglich</span><span data-lang="en">No transfers allowed</span></li>
+            <li><span data-lang="de">Günstig, sicher öffentlich</span><span data-lang="en">Cheap, safely public</span></li>
+            <li><span data-lang="de">Beispiele: ValidateSession, GetStats</span><span data-lang="en">Examples: ValidateSession, GetStats</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout callout-purple">
+        <span data-lang="de"><strong>Merkregel:</strong> Procedure = schreiben. Function = lesen.</span>
+        <span data-lang="en"><strong>Memory aid:</strong> Procedure = write. Function = read.</span>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section id="s6">
+      <div class="section-num">06</div>
+      <h2><span class="icon">🔒</span>
+        <span data-lang="de">QPI-Einschränkungen — und warum sie existieren</span>
+        <span data-lang="en">QPI Constraints — and why they exist</span>
+      </h2>
+      <div data-lang="de"><p>QPI ist kein normales C++. Die Einschränkungen sind Absicht — sie machen den SC sicher und deterministisch:</p></div>
+      <div data-lang="en"><p>QPI is not regular C++. The constraints are intentional — they make the SC safe and deterministic:</p></div>
+      <table>
+        <thead>
+          <tr>
+            <th><span data-lang="de">Einschränkung</span><span data-lang="en">Constraint</span></th>
+            <th><span data-lang="de">Warum</span><span data-lang="en">Why</span></th>
+            <th><span data-lang="de">Lösung</span><span data-lang="en">Solution</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>#include</code> <span data-lang="de">verboten</span><span data-lang="en">forbidden</span></td>
+            <td><span data-lang="de">Keine externen Libraries → keine versteckte Logik</span><span data-lang="en">No external libraries → no hidden logic</span></td>
+            <td><span data-lang="de">QPI Built-in Typen</span><span data-lang="en">QPI built-in types</span></td>
+          </tr>
+          <tr>
+            <td><code>/</code> <span data-lang="de">und</span><span data-lang="en">and</span> <code>%</code></td>
+            <td><span data-lang="de">Undefined Behaviour bei Division durch 0</span><span data-lang="en">Undefined behaviour on division by zero</span></td>
+            <td><code>div(a,b)</code> / <code>mod(a,b)</code></td>
+          </tr>
+          <tr>
+            <td><code>string</code></td>
+            <td><span data-lang="de">Variable Länge → nicht deterministisch</span><span data-lang="en">Variable length → not deterministic</span></td>
+            <td><code>id</code> <span data-lang="de">Typ (60-Byte Hash)</span><span data-lang="en">type (60-byte hash)</span></td>
+          </tr>
+          <tr>
+            <td><code>new</code> / <span data-lang="de">Pointer</span><span data-lang="en">pointers</span></td>
+            <td><span data-lang="de">Dynamischer Speicher nicht vorhersehbar</span><span data-lang="en">Dynamic memory is unpredictable</span></td>
+            <td><code>Array&lt;T, N&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>bool</code> / <code>int</code> / <code>char</code></td>
+            <td><span data-lang="de">Plattformabhängige Größen</span><span data-lang="en">Platform-dependent sizes</span></td>
+            <td><code>bit</code>, <code>sint64</code>, <code>uint32</code>, <code>uint8</code></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">UTC-Zeit</span><span data-lang="en">UTC time</span></td>
+            <td><span data-lang="de">Server-Uhren nicht konsistent über 676 Nodes</span><span data-lang="en">Clocks not consistent across 676 nodes</span></td>
+            <td><code>qpi.tick()</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 7 -->
+    <section id="s7">
+      <div class="section-num">07</div>
+      <h2><span class="icon">🗄️</span>
+        <span data-lang="de">Die Datenstruktur: DepositEntry</span>
+        <span data-lang="en">The Data Structure: DepositEntry</span>
+      </h2>
+      <div data-lang="de"><p>Jedes Deposit wird als <code>DepositEntry</code> Struct gespeichert. Da es keinen <code>string</code>-Typ gibt, nutzen wir QPI-eigene Typen:</p></div>
+      <div data-lang="en"><p>Every deposit is stored as a <code>DepositEntry</code> struct. Since there is no <code>string</code> type, we use QPI-native types:</p></div>
+      <pre><code>struct DepositEntry
+{
+    id       owner;           // <span data-lang="de" class="inline">Wallet-Adresse (60-byte Hash)</span><span data-lang="en" class="inline">wallet address (60-byte hash)</span>
+    id       token;           // <span data-lang="de" class="inline">Session-Token (K12-Hash)</span><span data-lang="en" class="inline">session token (K12 hash)</span>
+    sint64   amount;          // <span data-lang="de" class="inline">Betrag in QUBIC-Einheiten</span><span data-lang="en" class="inline">amount in QUBIC units</span>
+    uint32   createdTick;     // qpi.tick() <span data-lang="de" class="inline">beim Erstellen</span><span data-lang="en" class="inline">at creation</span>
+    uint32   expiresAtTick;   // createdTick + 3600 ticks (≈ 30 <span data-lang="de" class="inline">Min</span><span data-lang="en" class="inline">min</span>)
+    uint8    status;          // 0=<span data-lang="de" class="inline">leer</span><span data-lang="en" class="inline">empty</span>  1=held  2=refunded  3=forfeited
+    uint32   requestCount;    // <span data-lang="de" class="inline">Anzahl Requests</span><span data-lang="en" class="inline">number of requests</span>
+};</code></pre>
+      <div data-lang="de"><p><strong>Warum 512 Slots?</strong> Das ist die maximale Anzahl gleichzeitiger Sessions. Mehr kostet mehr Speicher auf jedem der 676 Nodes.</p></div>
+      <div data-lang="en"><p><strong>Why 512 slots?</strong> That is the maximum number of concurrent sessions. More costs more storage on each of the 676 nodes.</p></div>
+      <pre><code>Array&lt;DepositEntry, 512&gt; deposits;</code></pre>
+    </section>
+
+    <!-- 8 -->
+    <section id="s8">
+      <div class="section-num">08</div>
+      <h2><span class="icon">#️⃣</span>
+        <span data-lang="de">Der <code>id</code> Typ und K12-Hashing</span>
+        <span data-lang="en">The <code>id</code> Type and K12 Hashing</span>
+      </h2>
+      <div data-lang="de">
+        <p><code>id</code> ist ein QPI Built-in Typ — ein 60-Byte-Wert der typischerweise eine Wallet-Adresse oder einen Hash darstellt.</p>
+        <h3>Wie wird der Session-Token erzeugt?</h3>
+      </div>
+      <div data-lang="en">
+        <p><code>id</code> is a QPI built-in type — a 60-byte value that typically represents a wallet address or hash.</p>
+        <h3>How is the session token generated?</h3>
+      </div>
+      <pre><code>id caller       = qpi.invocator();   // <span data-lang="de" class="inline">Wallet-Adresse des Aufrufers</span><span data-lang="en" class="inline">wallet address of the caller</span>
+id sessionToken = qpi.K12(caller);   // K12-Hash → <span data-lang="de" class="inline">einzigartiges Token</span><span data-lang="en" class="inline">unique token</span></code></pre>
+      <div data-lang="de">
+        <p><code>qpi.K12()</code> ist Qubics eigene Hash-Funktion. Der Token ist:</p>
+        <ul>
+          <li><strong>Einzigartig</strong> pro Wallet</li>
+          <li><strong>Nicht vorhersagbar</strong> von außen</li>
+          <li><strong>Verifizierbar</strong> — der Proxy prüft ihn mit <code>ValidateSession()</code></li>
+        </ul>
+      </div>
+      <div data-lang="en">
+        <p><code>qpi.K12()</code> is Qubic's own hash function. The token is:</p>
+        <ul>
+          <li><strong>Unique</strong> per wallet</li>
+          <li><strong>Unpredictable</strong> from outside</li>
+          <li><strong>Verifiable</strong> — the proxy checks it with <code>ValidateSession()</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section id="s9">
+      <div class="section-num">09</div>
+      <h2><span class="icon">⏱️</span>
+        <span data-lang="de">Tick-basierte Zeit</span>
+        <span data-lang="en">Tick-Based Time</span>
+      </h2>
+      <div data-lang="de">
+        <p>Qubic hat keine Echtzeituhr. Stattdessen gibt es <strong>Ticks</strong> — einen globalen Zähler der vom Netzwerk hochgezählt wird.</p>
+        <ul>
+          <li>Aktuell <strong>mehr als 2 Ticks pro Sekunde</strong> (Intervall &lt; 1 Sek)</li>
+          <li><strong>3.600 Ticks ≈ weniger als 30 Minuten</strong> (je nach aktueller Tick-Rate)</li>
+          <li><code>qpi.tick()</code> gibt den aktuellen Tick zurück</li>
+        </ul>
+      </div>
+      <div data-lang="en">
+        <p>Qubic has no real-time clock. Instead there are <strong>ticks</strong> — a global counter incremented by the network.</p>
+        <ul>
+          <li>Currently <strong>more than 2 ticks per second</strong> (interval &lt; 1 sec)</li>
+          <li><strong>3,600 ticks ≈ less than 30 minutes</strong> (depends on current tick rate)</li>
+          <li><code>qpi.tick()</code> returns the current tick</li>
+        </ul>
+      </div>
+      <pre><code>entry.expiresAtTick = qpi.tick() + SESSION_DURATION_TICKS;  // +3600</code></pre>
+      <div class="callout callout-blue">
+        <span data-lang="de">Im <code>BEGIN_TICK</code> Hook läuft automatisch ein Scan — abgelaufene Sessions werden forfeitiert ohne dass jemand aktiv etwas tun muss.</span>
+        <span data-lang="en">The <code>BEGIN_TICK</code> hook runs an automatic scan — expired sessions are forfeited without anyone having to do anything.</span>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section id="s10">
+      <div class="section-num">10</div>
+      <h2><span class="icon">🔁</span>Hooks: BEGIN_EPOCH &amp; BEGIN_TICK</h2>
+      <div data-lang="de"><p>Qubic ruft diese Blöcke automatisch auf — kein externer Trigger nötig.</p></div>
+      <div data-lang="en"><p>Qubic calls these blocks automatically — no external trigger needed.</p></div>
+
+      <h3>BEGIN_EPOCH / END_EPOCH</h3>
+      <div data-lang="de"><p>Läuft ca. <strong>einmal pro Woche</strong>. Bei uns: Initialisierung des Operators beim ersten Deploy.</p></div>
+      <div data-lang="en"><p>Runs approx. <strong>once per week</strong>. Here: operator initialization on first deploy.</p></div>
+      <pre><code>BEGIN_EPOCH
+{
+    id zeroId;
+    if (operator_ == zeroId)   // <span data-lang="de" class="inline">Erste Epoche = noch nicht initialisiert</span><span data-lang="en" class="inline">first epoch = not yet initialized</span>
+    {
+        operator_ = qpi.originator();   // <span data-lang="de" class="inline">Deployer wird Operator</span><span data-lang="en" class="inline">deployer becomes operator</span>
+    }
+}
+END_EPOCH</code></pre>
+
+      <h3>BEGIN_TICK / END_TICK</h3>
+      <div data-lang="de"><p>Läuft aktuell <strong>mehr als 2× pro Sekunde</strong> (Intervall &lt; 1 Sek). Bei uns: automatisches Expire abgelaufener Sessions.</p></div>
+      <div data-lang="en"><p>Currently runs <strong>more than 2× per second</strong> (interval &lt; 1 sec). Here: automatic expiry of stale sessions.</p></div>
+    </section>
+
+    <!-- 11 -->
+    <section id="s11">
+      <div class="section-num">11</div>
+      <h2><span class="icon">🛡️</span>
+        <span data-lang="de">Sicherheit: Wie verhindert der SC Betrug?</span>
+        <span data-lang="en">Security: How does the SC prevent fraud?</span>
+      </h2>
+      <h3>
+        <span data-lang="de">Problem: Fremde Deposits zurückfordern</span>
+        <span data-lang="en">Problem: Claiming someone else's deposit</span>
+      </h3>
+      <div data-lang="de"><p>Beim <code>Refund()</code> müssen BEIDE Werte übereinstimmen:</p></div>
+      <div data-lang="en"><p>For <code>Refund()</code> BOTH values must match:</p></div>
+      <ul>
+        <li><span data-lang="de">Der korrekte <code>sessionIndex</code> (Position im Array)</span><span data-lang="en">The correct <code>sessionIndex</code> (position in array)</span></li>
+        <li><span data-lang="de">Das korrekte <code>token</code> (K12-Hash) — kennt nur der originale Depositor</span><span data-lang="en">The correct <code>token</code> (K12 hash) — only the original depositor knows it</span></li>
+      </ul>
+      <pre><code>if (entry.token != input.token)
+{
+    output.success   = 0;
+    output.errorCode = 2;  // <span data-lang="de" class="inline">falsches Token → abgelehnt</span><span data-lang="en" class="inline">wrong token → rejected</span>
+    return;
+}</code></pre>
+
+      <h3>
+        <span data-lang="de">Forfeit: Nur der Operator darf forfeitten</span>
+        <span data-lang="en">Forfeit: Only the operator may forfeit</span>
+      </h3>
+      <pre><code>if (qpi.invocator() != operator_)
+{
+    output.success   = 0;
+    output.errorCode = 2;  // <span data-lang="de" class="inline">nicht der Operator → abgelehnt</span><span data-lang="en" class="inline">not the operator → rejected</span>
+    return;
+}</code></pre>
+    </section>
+
+    <!-- 12 -->
+    <section id="s12">
+      <div class="section-num">12</div>
+      <h2><span class="icon">📋</span>
+        <span data-lang="de">Registrierung der Entry Points</span>
+        <span data-lang="en">Registering Entry Points</span>
+      </h2>
+      <div data-lang="de">
+        <p>Jede Procedure und Function muss mit einem <strong>fixen Index</strong> registriert werden. Der Index ist die "Telefonnummer" über die externe Aufrufer den Entry Point adressieren.</p>
+      </div>
+      <div data-lang="en">
+        <p>Every procedure and function must be registered with a <strong>fixed index</strong>. The index is the "phone number" external callers use to address the entry point.</p>
+      </div>
+      <pre><code>REGISTER_USER_FUNCTIONS_AND_PROCEDURES
+{
+    REGISTER_USER_PROCEDURE(Deposit,           1);
+    REGISTER_USER_PROCEDURE(Refund,            2);
+    REGISTER_USER_PROCEDURE(Forfeit,           3);
+    REGISTER_USER_PROCEDURE(WithdrawForfeited, 6);  // NEW — index 6
+    REGISTER_USER_FUNCTION(ValidateSession,    4);
+    REGISTER_USER_FUNCTION(GetStats,           5);
+}</code></pre>
+      <div class="callout callout-orange">
+        <span data-lang="de"><strong>Wichtig:</strong> Die Indizes dürfen nach dem Deployment nie geändert werden. Ändert man sie, bricht jeder bestehende Client.</span>
+        <span data-lang="en"><strong>Important:</strong> Indices must never change after deployment. Changing them breaks every existing client.</span>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section id="s13">
+      <div class="section-num">13</div>
+      <h2><span class="icon">🌐</span>
+        <span data-lang="de">Gesamtbild: Wie alles zusammenspielt</span>
+        <span data-lang="en">Big Picture: How everything works together</span>
+      </h2>
+      <div class="flow-diagram"><span data-lang="de">Nutzer-Browser        Web-Proxy (Node.js)       Qubic Smart Contract
+      |                        |                              |
+      |-- zahlt Deposit ------>|                              |
+      |                        |-- Deposit(amount) ---------->|
+      |                        |                   speichert Entry
+      |                        |<-- token + index ------------|
+      |<-- token --------------|                              |
+      |                        |                              |
+      |-- Request + token ---->|                              |
+      |                        |-- ValidateSession(token) --->|
+      |                        |<-- valid=1 / valid=0 --------|
+      |<-- 200 OK / 403 -------|                              |
+      |                        |                              |
+      |-- sauberes Verlassen ->|                              |
+      |                        |-- Refund(index, token) ----->|
+      |                        |         qpi.transfer() ------+--> QUBIC zurück
+      |<-- "Deposit zurück" ---|                              |</span><span data-lang="en">User Browser          Web-Proxy (Node.js)       Qubic Smart Contract
+      |                        |                              |
+      |-- pays deposit ------->|                              |
+      |                        |-- Deposit(amount) ---------->|
+      |                        |                   stores Entry
+      |                        |<-- token + index ------------|
+      |<-- token --------------|                              |
+      |                        |                              |
+      |-- Request + token ---->|                              |
+      |                        |-- ValidateSession(token) --->|
+      |                        |<-- valid=1 / valid=0 --------|
+      |<-- 200 OK / 403 -------|                              |
+      |                        |                              |
+      |-- clean exit --------->|                              |
+      |                        |-- Refund(index, token) ----->|
+      |                        |         qpi.transfer() ------+--> QUBIC back
+      |<-- "Deposit returned"--|                              |</span></div>
+    </section>
+
+    <!-- 14 -->
+    <section id="s14">
+      <div class="section-num">14</div>
+      <h2><span class="icon">💸</span>
+        <span data-lang="de">WithdrawForfeited — Wie der Operator QUBIC abheben kann</span>
+        <span data-lang="en">WithdrawForfeited — How the Operator Withdraws QUBIC</span>
+      </h2>
+      <div data-lang="de">
+        <p>Forfeitierte QUBIC blieben bisher für immer im Contract. Die neue <code>PUBLIC_PROCEDURE(WithdrawForfeited)</code> erlaubt es dem Operator, dieses QUBIC auf seine Wallet zu transferieren.</p>
+      </div>
+      <div data-lang="en">
+        <p>Forfeited QUBIC previously stayed locked in the contract forever. The new <code>PUBLIC_PROCEDURE(WithdrawForfeited)</code> lets the operator transfer this QUBIC to their wallet.</p>
+      </div>
+      <div data-lang="de"><h3 style="margin:1.2rem 0 0.5rem">Was ist <code>qpi.contractBalance()</code>?</h3>
+        <p>Jeder SC hat eine eigene Wallet-Adresse auf der Blockchain. <code>qpi.contractBalance()</code> gibt den <strong>echten, aktuellen On-Chain-Saldo</strong> zurück — also das QUBIC das wirklich dort liegt.</p>
+      </div>
+      <div data-lang="en"><h3 style="margin:1.2rem 0 0.5rem">What is <code>qpi.contractBalance()</code>?</h3>
+        <p>Every SC has its own wallet address on the blockchain. <code>qpi.contractBalance()</code> returns the <strong>real, current on-chain balance</strong> — the QUBIC that is actually there.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card blue">
+          <div class="card-label"><span data-lang="de">Interne Buchhaltung</span><span data-lang="en">Internal Accounting</span></div>
+          <p style="font-size:0.9rem"><code>totalForfeited</code> — <span data-lang="de">was laut unserem Code dort sein sollte</span><span data-lang="en">what our code says should be there</span></p>
+        </div>
+        <div class="card purple">
+          <div class="card-label"><span data-lang="de">On-Chain-Realität</span><span data-lang="en">On-Chain Reality</span></div>
+          <p style="font-size:0.9rem"><code>contractBalance()</code> — <span data-lang="de">was wirklich dort ist</span><span data-lang="en">what is actually there</span></p>
+        </div>
+      </div>
+      <div class="callout callout-orange" style="margin-top:1rem">
+        <span data-lang="de"><strong>Defensives Programmieren:</strong> Wir prüfen beide Werte. Falls ein Bug in der Buchhaltungslogik wäre, verhindert der <code>contractBalance()</code>-Check, dass wir mehr transferieren als wirklich vorhanden ist.</span>
+        <span data-lang="en"><strong>Defensive programming:</strong> We check both values. If there were a bug in accounting logic, the <code>contractBalance()</code> check prevents transferring more than actually exists.</span>
+      </div>
+      <pre><code>PUBLIC_PROCEDURE(WithdrawForfeited)
+{
+    if (qpi.invocator() != operator_)  { /* reject */ return; }
+    if (input.amount > totalForfeited) { /* reject */ return; }
+    if (input.amount > qpi.contractBalance()) { /* reject */ return; }
+
+    qpi.transfer(operator_, input.amount);
+    totalForfeited = totalForfeited - input.amount;
+}</code></pre>
+    </section>
+
+    <!-- 15 -->
+    <section id="s15">
+      <div class="section-num">15</div>
+      <h2><span class="icon">🏛️</span>
+        <span data-lang="de">IPO, 676 Anteile &amp; Forfeit-Verteilung</span>
+        <span data-lang="en">IPO, 676 Shares &amp; Forfeit Distribution</span>
+      </h2>
+      <div data-lang="de">
+        <p>Wenn QubicShield als echter Qubic Smart Contract veröffentlicht wird, durchläuft er eine <strong>Dutch Auction (IPO)</strong>. Alle QUBIC aus dem IPO werden sofort verbrannt — das ist Protokoll. Der SC bekommt dabei genau <strong>676 Anteile</strong>, einer für jeden der 676 Computors im Netzwerk.</p>
+      </div>
+      <div data-lang="en">
+        <p>When QubicShield is published as a real Qubic smart contract, it goes through a <strong>Dutch Auction (IPO)</strong>. All QUBIC from the IPO is immediately burned — that is the protocol. The SC receives exactly <strong>676 shares</strong>, one for each of the 676 Computors in the network.</p>
+      </div>
+
+      <h3 style="margin:1.4rem 0 0.6rem"><span data-lang="de">QubicShield — Forfeit-Verteilung</span><span data-lang="en">QubicShield — Forfeit Distribution</span></h3>
+      <div data-lang="de"><p>Wenn ein Angreifer forfeitiert wird, soll sein Deposit so verteilt werden:</p></div>
+      <div data-lang="en"><p>When an attacker is forfeited, their deposit will be distributed as follows:</p></div>
+      <table>
+        <thead><tr>
+          <th><span data-lang="de">Empfänger</span><span data-lang="en">Recipient</span></th>
+          <th>%</th>
+          <th><span data-lang="de">Warum</span><span data-lang="en">Why</span></th>
+          <th>QPI</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>🔥 <span data-lang="de">Verbrennen</span><span data-lang="en">Burn</span></td>
+            <td><strong>50%</strong></td>
+            <td><span data-lang="de">Bestrafungssignal — Token dauerhaft vernichtet, deflationär</span><span data-lang="en">Punishment signal — tokens permanently destroyed, deflationary</span></td>
+            <td><code>qpi.burn()</code></td>
+          </tr>
+          <tr>
+            <td>🛡️ <span data-lang="de">Angegriffener Dienst (Operator)</span><span data-lang="en">Attacked service (operator)</span></td>
+            <td><strong>50%</strong></td>
+            <td><span data-lang="de">Direkte Entschädigung des Opfers — keine Plattformgebühr, kein Mittelsmann</span><span data-lang="en">Direct compensation for the victim — no platform fee, no middleman</span></td>
+            <td><code>qpi.transfer(operator_)</code></td>
+          </tr>
+          <tr>
+            <td>🏛️ <span data-lang="de">Shareholder / Plattform</span><span data-lang="en">Shareholders / platform</span></td>
+            <td><strong>0%</strong></td>
+            <td><span data-lang="de">Kein Rent-Seeking — QubicShield verdient <em>nicht</em> an Angriffen</span><span data-lang="en">No rent-seeking — QubicShield does <em>not</em> profit from attacks</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-green" style="margin-top:1rem">
+        <span data-lang="de"><strong>Designentscheidung:</strong> Die 50/50-Aufteilung kann über die Qubic-Community noch abgestimmt werden. Das Grundprinzip — <em>kein Gewinn für die Plattform aus Angriffen</em> — ist bewusst als Marketing-Argument gewählt: Wenn QubicShield funktioniert, gibt es keine DDoS-Angriffe mehr. Kein Angriff = kein Forfeit = keine Ausschüttung. Die Verteilung läuft automatisch in <code>END_EPOCH</code> (~wöchentlich), kein manueller Aufruf nötig.</span>
+        <span data-lang="en"><strong>Design decision:</strong> The 50/50 split can still be voted on by the Qubic community. The core principle — <em>no platform profit from attacks</em> — is deliberately a marketing argument: if QubicShield works, there are no more DDoS attacks. No attack = no forfeit = no distribution. Distribution runs automatically in <code>END_EPOCH</code> (~weekly), no manual call needed.</span>
+      </div>
+      <pre><code>// Called automatically once per epoch (~weekly)
+END_EPOCH
+{
+    if (totalForfeited == 0) { return; }
+
+    sint64 half = totalForfeited / 2;
+
+    qpi.burn(half);                    // 50% — permanently destroyed (deflationary)
+    qpi.transfer(operator_, half);     // 50% — compensation for the attacked service
+
+    // 0% to shareholders — no rent-seeking from DDoS victims (by design)
+
+    totalForfeited = 0;
+}</code></pre>
+    </section>
+
+    <!-- 16 -->
+    <section id="s16">
+      <div class="section-num">16</div>
+      <h2><span class="icon">🔑</span>
+        <span data-lang="de">Token-Entropie — Was ist ein Struct?</span>
+        <span data-lang="en">Token Entropy — What is a Struct?</span>
+      </h2>
+
+      <h3 style="margin:0 0 0.8rem"><span data-lang="de">Was ist ein Struct?</span><span data-lang="en">What is a Struct?</span></h3>
+      <div data-lang="de">
+        <p>Ein Struct (kurz für "Structure") ist ein <strong>Behälter für mehrere zusammengehörige Werte</strong> — wie eine Kiste mit beschrifteten Fächern. Alle Felder liegen hintereinander im Speicher.</p>
+      </div>
+      <div data-lang="en">
+        <p>A struct (short for "structure") is a <strong>container for multiple related values</strong> — like a box with labelled compartments. All fields are stored consecutively in memory.</p>
+      </div>
+      <pre><code>struct TokenSeed
+{
+    id     owner;      // <span data-lang="de">Fach 1: Wallet-Adresse (32 Bytes)</span><span data-lang="en">slot 1: wallet address (32 bytes)</span>
+    uint32 tick;       // <span data-lang="de">Fach 2: Zeitstempel    (4 Bytes)</span><span data-lang="en">slot 2: timestamp      (4 bytes)</span>
+    sint64 slotIndex;  // <span data-lang="de">Fach 3: Array-Position (8 Bytes)</span><span data-lang="en">slot 3: array position (8 bytes)</span>
+};
+//  <span data-lang="de">→ 44 Bytes am Stück im Speicher</span><span data-lang="en">→ 44 bytes in one block in memory</span></code></pre>
+      <div class="callout callout-green">
+        <span data-lang="de"><code>qpi.K12()</code> nimmt genau <strong>einen</strong> Parameter. Ein Struct bündelt mehrere Werte zu einem Block — K12 hasht dann alle 44 Bytes auf einmal. Kein String-Zusammenkleben nötig.</span>
+        <span data-lang="en"><code>qpi.K12()</code> takes exactly <strong>one</strong> parameter. A struct bundles multiple values into one block — K12 then hashes all 44 bytes at once. No string concatenation needed.</span>
+      </div>
+
+      <h3 style="margin:1.4rem 0 0.6rem"><span data-lang="de">Warum K12(owner) allein nicht reicht</span><span data-lang="en">Why K12(owner) alone is not enough</span></h3>
+      <div class="card-grid">
+        <div class="card blue">
+          <div class="card-label"><span data-lang="de">ALT — eine Entropie-Quelle</span><span data-lang="en">OLD — one entropy source</span></div>
+          <pre style="margin:0.5rem 0 0;font-size:0.8rem"><code>qpi.K12(caller)
+// gleiche Wallet → immer gleicher Token
+// Kollision bei gleichem Tick!</code></pre>
+        </div>
+        <div class="card purple">
+          <div class="card-label"><span data-lang="de">NEU — drei Entropie-Quellen</span><span data-lang="en">NEW — three entropy sources</span></div>
+          <pre style="margin:0.5rem 0 0;font-size:0.8rem"><code>qpi.K12(seed)  // owner+tick+slot
+// alle drei müssen gleichzeitig
+// kollidieren → praktisch unmöglich</code></pre>
+        </div>
+      </div>
+
+      <table style="margin-top:1rem">
+        <thead><tr>
+          <th><span data-lang="de">Quelle</span><span data-lang="en">Source</span></th>
+          <th><span data-lang="de">Kollidiert wenn...</span><span data-lang="en">Collides when...</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td><code>owner</code></td><td><span data-lang="de">gleiche Wallet — gewollt, aber allein nicht genug</span><span data-lang="en">same wallet — intended, but not enough alone</span></td></tr>
+          <tr><td><code>tick</code></td><td><span data-lang="de">exakt gleicher Tick (½ Sekunde) — sehr unwahrscheinlich</span><span data-lang="en">exact same tick (½ second) — very unlikely</span></td></tr>
+          <tr><td><code>slotIndex</code></td><td><span data-lang="de">gleicher freier Slot — unmöglich wenn owner gleich</span><span data-lang="en">same free slot — impossible if owner is same</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 17 -->
+    <!-- 18 -->
+    <section id="s18">
+      <div class="section-num">18</div>
+      <h2><span class="icon">🔌</span> TypeScript SDK</h2>
+
+      <h3><span data-lang="de">Warum ein SDK?</span><span data-lang="en">Why an SDK?</span></h3>
+      <p><span data-lang="de">Der Mock-Server verwaltet Deposits in einem In-Memory-Array. Für echtes Qubic brauchen wir HTTP-Requests an einen RPC-Node. Das offizielle Paket <code>@qubic-lib/qubic-ts-library</code> v0.1.6 stellt Klassen bereit, um Transaktionen zu bauen, zu signieren und zu broadcasten.</span><span data-lang="en">The mock server stores deposits in an in-memory array. For real Qubic we need HTTP requests to an RPC node. The official package <code>@qubic-lib/qubic-ts-library</code> v0.1.6 provides classes to build, sign, and broadcast transactions.</span></p>
+
+      <h3><span data-lang="de">Zwei Arten von SC-Aufrufen</span><span data-lang="en">Two types of SC calls</span></h3>
+      <table>
+        <thead><tr><th><span data-lang="de">Typ</span><span data-lang="en">Type</span></th><th>HTTP</th><th><span data-lang="de">Signatur?</span><span data-lang="en">Signature?</span></th><th><span data-lang="de">Sofortiges Ergebnis?</span><span data-lang="en">Immediate result?</span></th></tr></thead>
+        <tbody>
+          <tr><td><strong>Procedure</strong></td><td><code>POST /v1/broadcast-transaction</code></td><td>✅ Ja</td><td>❌ <span data-lang="de">Nein — nach Tick</span><span data-lang="en">No — after tick</span></td></tr>
+          <tr><td><strong>Function</strong></td><td><code>POST /v1/querySmartContract</code></td><td>❌ Nein</td><td>✅ <span data-lang="de">Sofort</span><span data-lang="en">Immediate</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3><span data-lang="de">Procedure: TX bauen, signieren, broadcasten</span><span data-lang="en">Procedure: build, sign, broadcast TX</span></h3>
+      <pre><code>const tx = new QubicTransaction()
+  .setSourcePublicKey(new PublicKey(senderPublicId))
+  .setDestinationPublicKey(new PublicKey(CONTRACT_ADDRESS))
+  .setAmount(new Long(Number(amount)))
+  .setTick(currentTick + 15)   // TX valid for next ~15 ticks
+  .setInputType(IDX_DEPOSIT)
+  .setPayload(dynPayload);
+
+const built   = await tx.build(senderSeed);
+const encoded = tx.encodeTransactionToBase64(built);
+
+await fetch('/v1/broadcast-transaction', {
+  method: 'POST',
+  body: JSON.stringify({ encodedTransaction: encoded }),
+});</code></pre>
+
+      <h3><span data-lang="de">Wichtige Einschränkung: kein synchroner Procedure-Output</span><span data-lang="en">Important limitation: no synchronous procedure output</span></h3>
+      <p><span data-lang="de"><code>broadcast-transaction</code> liefert <em>nur</em> eine Eingangsbestätigung — nicht das SC-Ergebnis. Ablauf: TX broadcasten → txId erhalten → warten → <code>validateSession()</code> pollen.</span><span data-lang="en"><code>broadcast-transaction</code> returns <em>only</em> a submission acknowledgement — not the SC result. Flow: broadcast TX → receive txId → wait → poll <code>validateSession()</code>.</span></p>
+
+      <h3>Function: Base64-Query</h3>
+      <pre><code>await fetch('/v1/querySmartContract', {
+  method: 'POST',
+  body: JSON.stringify({
+    contractIndex: CONTRACT_INDEX,
+    inputType:     IDX_VALIDATE_SESSION,
+    inputSize:     32,
+    requestData:   toBase64(token),  // 32-byte token as Base64
+  }),
+});
+// Response: { responseData: "&lt;base64&gt;" }
+// → fromBase64() → Uint8Array → readUint32LE()</code></pre>
+
+      <h3><span data-lang="de">Struct-Größen: exakte Übereinstimmung mit QubicShield.h</span><span data-lang="en">Struct sizes: must match QubicShield.h exactly</span></h3>
+      <pre><code>const SIZE_DEPOSIT_INPUT  = 8;   // sint64
+const SIZE_REFUND_INPUT   = 36;  // uint32 + id
+const SIZE_VALIDATE_INPUT = 32;  // id
+const SIZE_VALIDATE_OUT   = 45;  // uint8+uint32+uint32+id+uint32
+const SIZE_STATS_OUT      = 32;  // uint32+uint32+sint64*3</code></pre>
+
+      <h3>USE_REAL_SC <span data-lang="de">Env-Var</span><span data-lang="en">env var</span></h3>
+      <pre><code># Mock (default)
+npm run dev
+
+# Real SC (needs CONTRACT_ADDRESS + CONTRACT_INDEX in .env)
+USE_REAL_SC=true npm run dev</code></pre>
+      <p><span data-lang="de">Beim Start zeigt der Server: <code>Backend: 🔗 Qubic SC (real)</code> oder <code>Backend: 🧪 In-Memory Mock</code>.</span><span data-lang="en">On startup the server shows: <code>Backend: 🔗 Qubic SC (real)</code> or <code>Backend: 🧪 In-Memory Mock</code>.</span></p>
+    </section>
+
+    <!-- 19 -->
+    <section id="s19">
+      <div class="section-num">19</div>
+      <h2><span class="icon">▶</span>
+        <span data-lang="de">Demo starten &amp; API Tester bedienen</span>
+        <span data-lang="en">Running the Demo &amp; Using the API Tester</span>
+      </h2>
+
+      <div data-lang="de">
+        <p>Der QubicShield-Server ist ein einzelner Express-Prozess, der gleichzeitig das Frontend ausliefert und die API-Endpunkte bereitstellt. Es gibt keinen separaten Frontend-Server.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Server starten</h3>
+        <pre><code>cd qubicshield-ddos
+npm run dev</code></pre>
+        <p>Die Konsole zeigt dann:</p>
+        <pre><code>QubicShield Demo Server running at http://localhost:3000
+Backend: 🧪 In-Memory Mock
+
+Routes:
+  POST /api/deposit          – create deposit
+  GET  /api/validate/:token  – validate token
+  POST /api/refund           – refund deposit
+  GET  /api/protected        – access protected resource
+  GET  /api/stats            – system statistics
+  GET  /                     – demo UI</code></pre>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Was du siehst</h3>
+        <p>Der Server liefert drei Seiten unter <strong>http://localhost:3000</strong>:</p>
+        <table style="margin-top:0.6rem">
+          <thead><tr><th>URL</th><th>Seite</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>/</code></td>
+              <td><strong>API Tester</strong></td>
+              <td>Interaktive Demo: Deposit erstellen, Token validieren, Protected Resource aufrufen, Angriff simulieren, Live-Statistiken. Tabs für jeden Schritt.</td>
+            </tr>
+            <tr>
+              <td><code>/demo.html</code></td>
+              <td><strong>Simulation</strong></td>
+              <td>Vollautomatischer Ablauf mit Stepper-Anzeige und Aktivitäts-Log. Wähle eine Ziel-URL (erreichbar → Refund, nicht erreichbar → DDoS-Forfeit). Browser-Vorschau zeigt HTTP-Status.</td>
+            </tr>
+            <tr>
+              <td><code>/dashboard.html</code></td>
+              <td><strong>Dashboard</strong></td>
+              <td>Live-Übersicht: Stat-Karten (Deposits, Sessions, gebundene QU, Forfeits), Forfeit-Split-Balken, aktive Sessions-Tabelle, Event-Log mit allen Ereignissen. Aktualisiert alle 8 Sekunden.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:0.6rem">Alle Seiten: <strong>DE / EN</strong> Sprachumschalter oben rechts · grüner Punkt = Server online · Navigation zwischen den Seiten über die Buttons <em>Home / Simulation / Dashboard</em>.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Typischer Ablauf</h3>
+        <ol style="padding-left:1.2rem;line-height:2">
+          <li><strong>Deposit erstellen</strong> — beliebige Wallet-Adresse eingeben, Betrag wählen, Button klicken. Server gibt <code>sessionId</code> + <code>accessToken</code> zurück — werden automatisch in alle anderen Felder übertragen.</li>
+          <li><strong>Token validieren</strong> — prüft ob der Token noch gültig ist (Ablaufzeit, Request-Zähler).</li>
+          <li><strong>Protected Resource aufrufen</strong> — simuliert einen API-Aufruf unter dieser Session. Bei zu vielen Anfragen wird der Deposit einbehalten (DDoS-Erkennung).</li>
+          <li><strong>Refund anfordern</strong> — gibt den Deposit zurück, solange kein Angriffsmuster erkannt wurde.</li>
+          <li><strong>Stats abrufen</strong> — Übersicht aller Deposits, Forfeits und Gesamtzahlen.</li>
+        </ol>
+        <p style="margin-top:0.8rem">Jede Karte zeigt außerdem den äquivalenten <code>curl</code>-Befehl zum Aufklappen — nach einem Deposit werden die echten Werte automatisch eingesetzt.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Grundprinzip</h3>
+        <p><strong>1 Deposit = 1 Session = 1 Token.</strong> Das ist die Sicherheitslogik — jeder API-Zugriff hat einen eigenen Einsatz. Mehrmals auf „Deposit erstellen" klicken erzeugt mehrere unabhängige Sessions mit je eigenem Token und heldAmount. Ein Token verfällt nach 30 Minuten — danach ist ein neuer Deposit nötig.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Mock-Modus vs. echter SC</h3>
+        <p>Standardmäßig läuft alles im <strong>Mock-Modus</strong> — kein echtes Wallet nötig, Deposits leben nur im RAM (weg bei Neustart). Für den echten Smart Contract:</p>
+        <pre><code>USE_REAL_SC=true npm run dev</code></pre>
+      </div>
+
+      <div data-lang="en">
+        <p>The QubicShield server is a single Express process that simultaneously serves the frontend and provides the API endpoints. There is no separate frontend server.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Starting the server</h3>
+        <pre><code>cd qubicshield-ddos
+npm run dev</code></pre>
+        <p>The console will show:</p>
+        <pre><code>QubicShield Demo Server running at http://localhost:3000
+Backend: 🧪 In-Memory Mock
+
+Routes:
+  POST /api/deposit          – create deposit
+  GET  /api/validate/:token  – validate token
+  POST /api/refund           – refund deposit
+  GET  /api/protected        – access protected resource
+  GET  /api/stats            – system statistics
+  GET  /                     – demo UI</code></pre>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">What you see</h3>
+        <p>The server serves three pages under <strong>http://localhost:3000</strong>:</p>
+        <table style="margin-top:0.6rem">
+          <thead><tr><th>URL</th><th>Page</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>/</code></td>
+              <td><strong>API Tester</strong></td>
+              <td>Interactive demo: create deposit, validate token, call protected resource, simulate attack, view live statistics. One tab per step.</td>
+            </tr>
+            <tr>
+              <td><code>/demo.html</code></td>
+              <td><strong>Simulation</strong></td>
+              <td>Fully automated flow with stepper display and activity log. Choose a target URL (reachable → refund, unreachable → DDoS forfeit). Browser preview shows the HTTP status.</td>
+            </tr>
+            <tr>
+              <td><code>/dashboard.html</code></td>
+              <td><strong>Dashboard</strong></td>
+              <td>Live overview: stat cards (deposits, sessions, held QU, forfeits), forfeit split bar, active sessions table, event log with all events. Auto-refreshes every 8 seconds.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:0.6rem">All pages: <strong>DE / EN</strong> language toggle top right · green dot = server online · navigation between pages via the <em>Home / Simulation / Dashboard</em> buttons.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Typical workflow</h3>
+        <ol style="padding-left:1.2rem;line-height:2">
+          <li><strong>Create deposit</strong> — enter any wallet address, choose an amount, click the button. The server returns a <code>sessionId</code> + <code>accessToken</code> — auto-filled into all other fields.</li>
+          <li><strong>Validate token</strong> — checks if the token is still valid (expiry time, request counter).</li>
+          <li><strong>Call protected resource</strong> — simulates an API call under this session. Too many requests trigger DDoS detection and the deposit is forfeited.</li>
+          <li><strong>Request refund</strong> — returns the deposit as long as no attack pattern was detected.</li>
+          <li><strong>Fetch stats</strong> — overview of all deposits, forfeits, and totals.</li>
+        </ol>
+        <p style="margin-top:0.8rem">Each card also shows the equivalent <code>curl</code> command — click to expand. After a deposit, the real values are automatically substituted.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Core principle</h3>
+        <p><strong>1 Deposit = 1 Session = 1 Token.</strong> This is the security logic — every API access has its own stake. Clicking "Create Deposit" multiple times creates multiple independent sessions, each with its own token and heldAmount. A token expires after 30 minutes — a new deposit is required after that.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Mock mode vs. real SC</h3>
+        <p>By default everything runs in <strong>mock mode</strong> — no real wallet needed, deposits live in RAM only (gone on restart). To use the real smart contract:</p>
+        <pre><code>USE_REAL_SC=true npm run dev</code></pre>
+      </div>
+    </section>
+
+    <!-- 20 -->
+    <section id="s20">
+      <div class="section-num">20</div>
+      <h2><span class="icon">🛡</span>
+        <span data-lang="de">DDoS-Erkennung &amp; Deposit-Forfeit</span>
+        <span data-lang="en">DDoS Detection &amp; Deposit Forfeit</span>
+      </h2>
+
+      <div data-lang="de">
+        <p>QubicShield erkennt Angriffsmuster automatisch in zwei unabhängigen Schichten und behält den Deposit des Angreifers ein (<em>forfeit</em>). Der Angreifer verliert sein Geld — der Dienst bleibt verfügbar.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Schicht 1 — Rate Limiter Middleware</h3>
+        <p>Datei: <code>src/middleware/rateLimiter.ts</code></p>
+        <p>Implementiert ein <strong>Sliding Window</strong> pro Access-Token:</p>
+        <ul style="padding-left:1.2rem;margin:0.5rem 0;line-height:2">
+          <li>Fenster: <strong>60 Sekunden</strong></li>
+          <li>Schwellwert: <strong>50 Anfragen</strong> → setzt <code>isAttacking = true</code></li>
+          <li>Setzt Response-Header: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Window</code></li>
+          <li>Blockt <em>nicht</em> sofort — gibt dem Route-Handler die Möglichkeit, den Deposit zuerst einzubehalten</li>
+        </ul>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Schicht 2 — DepositManager</h3>
+        <p>Datei: <code>src/depositManager.ts</code> → Methode <code>isAttacking()</code></p>
+        <p>Zweiter unabhängiger Zähler mit eigenem Schwellwert:</p>
+        <ul style="padding-left:1.2rem;margin:0.5rem 0;line-height:2">
+          <li>Fenster: <strong>60 Sekunden</strong></li>
+          <li>Schwellwert: <strong>100 Anfragen</strong> → Deposit wird einbehalten</li>
+          <li>Wird auch beim <strong>Refund-Versuch</strong> geprüft — wer angreift und dann Geld zurückfordert, verliert den Deposit trotzdem</li>
+        </ul>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Ablauf bei erkanntem Angriff</h3>
+        <pre><code>1. Request kommt rein → rateLimiter prüft (50 req/min)
+2. Route: depositManager.isAttacking() prüft (100 req/min)
+3. Bei Überschreitung → forfeitDeposit() → Deposit einbehalten
+4. HTTP 403: "Attack pattern detected. Deposit has been forfeited."</code></pre>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Live-Demo im API Tester</h3>
+        <p>Im API Tester (<a href="http://localhost:3000" style="color:var(--accent)">localhost:3000</a>) gibt es die Karte <strong>„DDoS-Angriff simulieren"</strong>. Ein Klick auf „Angriff starten" sendet automatisch 110 Anfragen in schneller Folge. Ein Fortschrittsbalken zeigt den Verlauf — sobald der Server den Angriff erkennt (typisch nach ~100 Anfragen), wird der Deposit einbehalten und der Balken springt auf rot.</p>
+      </div>
+
+      <div data-lang="en">
+        <p>QubicShield automatically detects attack patterns in two independent layers and forfeits the attacker's deposit. The attacker loses their money — the service stays available.</p>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Layer 1 — Rate Limiter Middleware</h3>
+        <p>File: <code>src/middleware/rateLimiter.ts</code></p>
+        <p>Implements a <strong>sliding window</strong> per access token:</p>
+        <ul style="padding-left:1.2rem;margin:0.5rem 0;line-height:2">
+          <li>Window: <strong>60 seconds</strong></li>
+          <li>Threshold: <strong>50 requests</strong> → sets <code>isAttacking = true</code></li>
+          <li>Sets response headers: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Window</code></li>
+          <li>Does <em>not</em> block immediately — lets the route handler forfeit the deposit first</li>
+        </ul>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Layer 2 — DepositManager</h3>
+        <p>File: <code>src/depositManager.ts</code> → method <code>isAttacking()</code></p>
+        <p>Second independent counter with its own threshold:</p>
+        <ul style="padding-left:1.2rem;margin:0.5rem 0;line-height:2">
+          <li>Window: <strong>60 seconds</strong></li>
+          <li>Threshold: <strong>100 requests</strong> → deposit is forfeited</li>
+          <li>Also checked on <strong>refund attempts</strong> — an attacker trying to reclaim their deposit still loses it</li>
+        </ul>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Flow when attack is detected</h3>
+        <pre><code>1. Request arrives → rateLimiter checks (50 req/min)
+2. Route: depositManager.isAttacking() checks (100 req/min)
+3. Threshold exceeded → forfeitDeposit() → deposit held
+4. HTTP 403: "Attack pattern detected. Deposit has been forfeited."</code></pre>
+
+        <h3 style="margin:1.2rem 0 0.5rem;font-size:1rem;color:var(--text)">Live demo in the API Tester</h3>
+        <p>The API Tester at <a href="http://localhost:3000" style="color:var(--accent)">localhost:3000</a> has a card <strong>"Simulate DDoS Attack"</strong>. One click on "Start Attack" automatically fires 110 requests in rapid succession. A progress bar shows the progress — once the server detects the attack (typically after ~100 requests), the deposit is forfeited and the bar turns red.</p>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section id="s17">
+      <div class="section-num">17</div>
+      <h2><span class="icon">🚀</span>
+        <span data-lang="de">Nächste Schritte</span>
+        <span data-lang="en">Next Steps</span>
+      </h2>
+      <div class="todo-item"><div class="todo-check"></div><div><strong>Qubic Community / Team kontaktieren</strong> — <span data-lang="de">Vorhaben im Discord vorstellen (#developers), Feedback einholen, Testnet-Deploy-Prozess klären</span><span data-lang="en">present project in Discord (#developers), gather feedback, clarify testnet deploy process</span></div></div>
+      <div class="todo-item"><div class="todo-check"></div><div><strong>Testnet Deploy</strong> — <span data-lang="de">Contract auf Qubic Testnet deployen und testen</span><span data-lang="en">deploy contract to Qubic testnet and test</span></div></div>
+    </section>
+
+    <!-- ── Section 21: Open Issues ── -->
+    <section id="s21">
+      <div class="section-num">21</div>
+      <h2><span class="icon">⚠️</span>
+        <span data-lang="de">Offene Probleme &amp; bekannte Einschränkungen</span>
+        <span data-lang="en">Open Issues &amp; Known Limitations</span>
+      </h2>
+
+      <p>
+        <span data-lang="de">Diese Punkte wurden bei der Analyse des PoC identifiziert. Sie sind kein Blocker für das Konzept, müssen aber vor einem produktiven Einsatz gelöst werden.</span>
+        <span data-lang="en">These issues were identified during PoC analysis. They are not blockers for the concept, but must be resolved before production use.</span>
+      </p>
+
+      <!-- Problem 1: Epoch change -->
+      <div class="callout callout-orange" style="margin-top:1.2rem">
+        <strong>
+          <span data-lang="de">1. Epochenwechsel (jeden Mittwoch ~12:00 UTC)</span>
+          <span data-lang="en">1. Epoch Change (every Wednesday ~12:00 UTC)</span>
+        </strong><br>
+        <span data-lang="de">
+          Das Qubic-Netzwerk startet wöchentlich neu. Der Ausfall kann bis zu 45 Minuten dauern.
+          Die aktuelle Retry-Logik in <code>scClient.ts</code> deckt nur 5 × 8 s = 40 Sekunden ab.
+          Während des Ausfalls gibt der Server 502-Fehler zurück — kein Fallback-Modus ist implementiert.
+          <strong>Das Qubic-Team arbeitet an einer Lösung.</strong>
+        </span>
+        <span data-lang="en">
+          The Qubic network restarts weekly. The outage can last up to 45 minutes.
+          The current retry logic in <code>scClient.ts</code> covers only 5 × 8 s = 40 seconds.
+          During the full outage window the server returns 502 errors — no degraded-mode fallback is implemented.
+          <strong>The Qubic team is working on a fix.</strong>
+        </span>
+      </div>
+
+      <!-- Problem 2: Empty ticks -->
+      <div class="callout callout-orange">
+        <strong>
+          <span data-lang="de">2. Leere Ticks (stille Transaktion-Verwerfung)</span>
+          <span data-lang="en">2. Empty Ticks (silent transaction drop)</span>
+        </strong><br>
+        <span data-lang="de">
+          Qubic-Ticks produzieren gelegentlich keinen Block. Eine Transaktion, die in so einen Tick gesendet wird, wird stillschweigend verworfen.
+          <code>scClient.ts</code> erkennt veraltete Ticks und wiederholt den Versuch bis zu 5-mal — aber der Client
+          erhält nur eine <code>txId</code> zurück und muss <code>/api/validate/&lt;token&gt;</code> manuell pollen.
+          Wenn alle Versuche in leeren Ticks landen, bleibt der Deposit unbestätigt.
+        </span>
+        <span data-lang="en">
+          Qubic ticks occasionally produce no block. A transaction broadcast to such a tick is silently discarded.
+          <code>scClient.ts</code> detects stale ticks and retries up to 5 times — but the client only
+          receives a <code>txId</code> and must manually poll <code>/api/validate/&lt;token&gt;</code>.
+          If all retries land in empty ticks, the deposit never confirms.
+        </span>
+      </div>
+
+      <!-- Problem 3: Forfeit not on-chain -->
+      <div class="callout callout-blue">
+        <strong>
+          <span data-lang="de">3. On-Chain Forfeit nicht implementiert ⚠️ Testnet-Blocker</span>
+          <span data-lang="en">3. On-Chain Forfeit not implemented ⚠️ Testnet blocker</span>
+        </strong><br>
+        <span data-lang="de">
+          Die Angriffserkennung läuft lokal im Server. Wenn ein Angriff erkannt wird, wird
+          <code>depositManager.forfeitDeposit()</code> aufgerufen — das betrifft aber nur den Mock-Zustand.
+          Die <code>Forfeit()</code>-Procedure im Smart Contract wird <em>nie</em> aufgerufen.
+          Im SC-Modus behält ein Angreifer seine Kaution on-chain.
+          Muss vor dem Testnet-Deploy implementiert werden.
+        </span>
+        <span data-lang="en">
+          Attack detection runs locally in the server. When an attack is detected,
+          <code>depositManager.forfeitDeposit()</code> is called — but this only updates mock state.
+          The <code>Forfeit()</code> procedure on the smart contract is <em>never</em> invoked.
+          In SC mode an attacker keeps their deposit on-chain.
+          Must be implemented before a meaningful testnet test.
+        </span>
+      </div>
+
+      <!-- Problem 4: Forfeit split -->
+      <div class="callout callout-blue">
+        <strong>
+          <span data-lang="de">4. Forfeit-Aufteilung noch nicht final entschieden</span>
+          <span data-lang="en">4. Forfeit split not yet finalized</span>
+        </strong><br>
+        <span data-lang="de">
+          Aktuelle Implementierung: 50% verbrennen / 50% Operator.
+          Alternative aus dem Lernjournal: 40% verbrennen / 40% Shareholder / 15% Operator / 1% Creator.
+          Die Aufteilung muss vor dem Testnet-Deploy festgelegt und der Contract entsprechend aktualisiert werden.
+        </span>
+        <span data-lang="en">
+          Current implementation: 50% burned / 50% operator.
+          Alternative from the learning journal: 40% burned / 40% shareholders / 15% operator / 1% creator.
+          The split must be decided and the contract updated before testnet deploy.
+        </span>
+      </div>
+
+      <!-- Problem 5: MAX_DEPOSITS -->
+      <div class="callout callout-purple">
+        <strong>
+          <span data-lang="de">5. Session-Slot-Limit (MAX_DEPOSITS = 512)</span>
+          <span data-lang="en">5. Session slot limit (MAX_DEPOSITS = 512)</span>
+        </strong><br>
+        <span data-lang="de">
+          PoC-Wert. Wenn alle Slots belegt sind, werden neue Deposits mit einem kryptischen Fehlercode abgelehnt.
+          Kein Warteschlangen-Mechanismus, keine Überlaufstrategie und keine benutzerfreundliche Fehlermeldung vorhanden.
+          Für Produktion erhöhen und Überlaufverhalten definieren.
+        </span>
+        <span data-lang="en">
+          PoC value. When all slots are occupied, new deposits are rejected with a cryptic error code.
+          No queue, overflow strategy, or user-facing message is implemented.
+          Raise for production and define overflow behavior.
+        </span>
+      </div>
+
+      <!-- Problem 6: False positives -->
+      <div class="callout callout-purple">
+        <strong>
+          <span data-lang="de">6. False Positives — kein Einspruchsprozess</span>
+          <span data-lang="en">6. False positives — no dispute mechanism</span>
+        </strong><br>
+        <span data-lang="de">
+          Ein legitimer Nutzer könnte durch aggressives Browser-Polling, Monitoring-Tools oder
+          eine falsch kalibrierte Schwelle als Angreifer erkannt werden und seine Kaution verlieren.
+          Es gibt keinen dokumentierten Einspruchs- oder Rückerstattungsprozess für solche Fälle.
+        </span>
+        <span data-lang="en">
+          A legitimate user could be flagged as an attacker due to aggressive browser polling,
+          monitoring tools, or a miscalibrated threshold and lose their deposit.
+          No dispute or appeal process is documented for such cases.
+        </span>
+      </div>
+
+      <!-- Problem 7: Event log -->
+      <div class="callout callout-purple">
+        <strong>
+          <span data-lang="de">7. Event-Log nur im Mock-Modus</span>
+          <span data-lang="en">7. Event log only in mock mode</span>
+        </strong><br>
+        <span data-lang="de">
+          <code>GET /api/events</code> funktioniert nur im Mock. Im echten SC-Modus gibt es keinen
+          Audit-Trail für Deposits, Rückerstattungen oder Konfiszierungen — das Dashboard zeigt dann keine Events.
+        </span>
+        <span data-lang="en">
+          <code>GET /api/events</code> only works in mock mode. In real SC mode there is no
+          audit trail for deposits, refunds, or forfeit decisions — the dashboard shows no events.
+        </span>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  QubicShield · Smart Contract Guide · <span data-lang="de">Stand</span><span data-lang="en">As of</span> 2026-03-28 · v0.2.0
+</footer>
+
+<script>
+  function setLang(lang) {
+    document.body.className = 'lang-' + lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent === lang.toUpperCase());
+    });
+    localStorage.setItem('qubicshield-lang', lang);
+  }
+
+  // Restore saved language preference
+  const saved = localStorage.getItem('qubicshield-lang');
+  if (saved) setLang(saved);
+
+  // Active TOC link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const tocLinks  = document.querySelectorAll('.toc a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
