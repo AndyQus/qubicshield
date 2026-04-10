@@ -427,6 +427,7 @@
     <a href="#s12"><span class="num">12</span> <span data-lang="de">Registrierung</span><span data-lang="en">Registration</span></a>
     <a href="#s13"><span class="num">13</span> <span data-lang="de">Gesamtbild</span><span data-lang="en">Big Picture</span></a>
     <a href="#s13b" style="padding-left:1.4rem"><span class="num">↳</span> <span data-lang="de">vs. Cloudflare</span><span data-lang="en">vs. Cloudflare</span></a>
+    <a href="#s13c" style="padding-left:1.4rem"><span class="num">↳</span> <span data-lang="de">vs. Shield Node</span><span data-lang="en">vs. Shield Node</span></a>
     <a href="#s14"><span class="num">14</span> WithdrawForfeited</a>
     <a href="#s15"><span class="num">15</span> <span data-lang="de">IPO &amp; Dividenden</span><span data-lang="en">IPO &amp; Dividends</span></a>
     <a href="#s16"><span class="num">16</span> <span data-lang="de">Token-Entropie &amp; Struct</span><span data-lang="en">Token Entropy &amp; Struct</span></a>
@@ -982,6 +983,87 @@ END_EPOCH</code></pre>
       <div class="callout" style="margin-top:1rem;background:rgba(245,158,11,0.08);border-color:var(--warn);">
         <span data-lang="de"><strong style="color:var(--warn)">Wichtige Einschränkung:</strong> QubicShield schützt <strong>authentifizierten API-Zugang</strong>. Für volumetrischen Netzwerk-DDoS (SYN-Floods, UDP-Amplification) ist QubicShield <em>ergänzend</em> zu Cloudflare — kein vollständiger Ersatz. Nicht authentifizierter Traffic erreicht weiterhin den Server.</span>
         <span data-lang="en"><strong style="color:var(--warn)">Important limitation:</strong> QubicShield protects <strong>authenticated API access</strong>. For volumetric network-layer DDoS (SYN floods, UDP amplification), QubicShield is <em>complementary</em> to Cloudflare — not a full replacement. Unauthenticated traffic still reaches the server.</span>
+      </div>
+    </section>
+
+    <!-- 13c -->
+    <section id="s13c">
+      <div class="section-num">↳</div>
+      <h2><span class="icon">🔗</span>
+        <span data-lang="de">QubicShield vs. QubicShield Node</span>
+        <span data-lang="en">QubicShield vs. QubicShield Node</span>
+      </h2>
+      <div data-lang="de">
+        <p>Die beiden Projekte sind keine Konkurrenten — das eine ist das <strong>Protokoll</strong>, das andere ist die <strong>Infrastruktur</strong>. QubicShield läuft heute als Middleware direkt im Web-Server und funktioniert vollständig ohne einen Node.</p>
+      </div>
+      <div data-lang="en">
+        <p>The two projects are not competitors — one is the <strong>protocol</strong>, the other is the <strong>infrastructure</strong>. QubicShield runs today as middleware directly inside the web server and works fully without any node.</p>
+      </div>
+
+      <div class="flow-diagram"><span data-lang="de">Ohne Node (jetzt):          Mit Node (Vision):
+
+Internet                     Internet
+   │                            │
+   ▼                            ▼
+Web-Server                  Shield Node (Reverse Proxy)
+  └─ QubicShield Middleware    ├── Kein Token → 402 / blockieren
+     ├── Deposit-Check         ├── Ungültige Signatur → 401
+     ├── Signatur-Prüfung      ├── Angriffsmuster → Forfeit()
+     └── Forfeit bei Angriff   └── Legitimer Traffic → weiter
+   │                            │
+   ▼                            ▼
+Geschützte API              Web-Server + QubicShield</span><span data-lang="en">Without Node (now):         With Node (vision):
+
+Internet                     Internet
+   │                            │
+   ▼                            ▼
+Web Server                  Shield Node (Reverse Proxy)
+  └─ QubicShield Middleware    ├── No token → 402 / block
+     ├── Deposit check         ├── Invalid signature → 401
+     ├── Signature verify      ├── Attack pattern → Forfeit()
+     └── Forfeit on attack     └── Legitimate traffic → forward
+   │                            │
+   ▼                            ▼
+Protected API               Web Server + QubicShield</span></div>
+
+      <table>
+        <thead><tr>
+          <th></th>
+          <th><span data-lang="de">QubicShield (dieser PoC)</span><span data-lang="en">QubicShield (this PoC)</span></th>
+          <th><span data-lang="de">QubicShield Node</span><span data-lang="en">QubicShield Node</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span data-lang="de">Ebene</span><span data-lang="en">Layer</span></td>
+            <td>L7 (<span data-lang="de">Anwendung</span><span data-lang="en">Application</span>)</td>
+            <td>L3–L7 (<span data-lang="de">Netzwerk + Anwendung</span><span data-lang="en">Network + Application</span>)</td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Position</span><span data-lang="en">Position</span></td>
+            <td><span data-lang="de">Im Web-Server</span><span data-lang="en">Inside the web server</span></td>
+            <td><span data-lang="de">Vor dem Web-Server</span><span data-lang="en">In front of the web server</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Unauthentifizierter Traffic</span><span data-lang="en">Unauthenticated traffic</span></td>
+            <td><span data-lang="de">Erreicht den Server</span><span data-lang="en">Reaches the server</span></td>
+            <td><span data-lang="de">Wird davor blockiert</span><span data-lang="en">Blocked before the server</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Standalone nutzbar</span><span data-lang="en">Usable standalone</span></td>
+            <td><strong><span data-lang="de">Ja</span><span data-lang="en">Yes</span></strong></td>
+            <td><span data-lang="de">Nein — braucht das Protokoll als Kern</span><span data-lang="en">No — needs the protocol as its core</span></td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td><span data-lang="de">Funktionierender PoC</span><span data-lang="en">Working PoC</span></td>
+            <td><span data-lang="de">Konzept / Vision</span><span data-lang="en">Concept / Vision</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-green" style="margin-top:1rem">
+        <span data-lang="de"><strong>Entwicklungsreihenfolge:</strong> (1) QubicShield PoC beweist, dass das Protokoll funktioniert → (2) Testnet-Deploy validiert gegen echten SC → (3) QubicShield Node baut auf dem validierten Protokoll auf und erweitert auf Infrastruktur-Ebene. Der Node macht den PoC nicht obsolet — er setzt ihn tiefer um.</span>
+        <span data-lang="en"><strong>Development sequence:</strong> (1) QubicShield PoC proves the protocol works → (2) Testnet deploy validates against a real SC → (3) QubicShield Node builds on the validated protocol and extends it to the infrastructure layer. The node does not make the PoC obsolete — it implements it deeper.</span>
       </div>
     </section>
 

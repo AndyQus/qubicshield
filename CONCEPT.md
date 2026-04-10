@@ -194,6 +194,62 @@ For organizations using Cloudflare primarily for rate limiting and API abuse pro
 
 ---
 
+## QubicShield vs. QubicShield Node
+
+QubicShield and the QubicShield Node concept are not competitors — one is the protocol, the other is the infrastructure.
+
+**QubicShield (this project)** runs as middleware directly inside the web server. No node required.
+
+```
+Internet
+   │
+Web Server (Node.js)
+  └── QubicShield Middleware
+        ├── Deposit check (SC call)
+        ├── SchnorrQ signature verification
+        └── Forfeit on attack pattern detected
+   │
+Protected API / resource
+```
+
+**Limitation:** Unauthenticated traffic (SYN floods, raw HTTP without token) still reaches the server. The server must handle that load itself.
+
+**QubicShield Node** sits as a reverse proxy in front of the server and filters at the network layer — it builds on this protocol as its core, and solves that one remaining weakness.
+
+```
+Internet
+   │
+QubicShield Node (Reverse Proxy)
+  ├── No token → block or 402 Payment Required
+  ├── Invalid signature → 401
+  ├── Attack pattern → Forfeit() on-chain
+  └── Legitimate traffic → forward
+   │
+Web Server  (QubicShield middleware, optional second layer)
+   │
+Protected API / resource
+```
+
+| | QubicShield (this PoC) | QubicShield Node |
+|---|---|---|
+| Layer | Application (L7) | Network + Application (L3–L7) |
+| Position | Inside the web server | In front of the web server |
+| Protects against | Authenticated session abuse | All incoming connections |
+| Unauthenticated traffic | Reaches the server | Blocked before the server |
+| Usable standalone | **Yes** | No — needs the protocol as its core |
+| Status | Working proof of concept | Concept / vision |
+
+The node does not make QubicShield obsolete. It extends the protocol to a deeper layer. Without the working deposit/signing protocol, there is no node.
+
+**Development sequence:**
+1. QubicShield PoC → proves the protocol works
+2. Testnet deploy → validates against a real smart contract
+3. QubicShield Node → builds on the validated protocol at the infrastructure layer
+
+→ Full details: [docs/gedanken/qubicshield-vs-node.md](docs/gedanken/qubicshield-vs-node.md)
+
+---
+
 ## Current Status
 
 This is a working Proof of Concept:

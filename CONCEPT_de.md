@@ -194,6 +194,62 @@ Für Unternehmen, die Cloudflare primär für Rate Limiting und API-Schutz nutze
 
 ---
 
+## QubicShield vs. QubicShield Node
+
+QubicShield und das QubicShield-Node-Konzept sind keine Konkurrenten — das eine ist das Protokoll, das andere ist die Infrastruktur.
+
+**QubicShield (dieses Projekt)** läuft als Middleware direkt im Web-Server. Kein Node nötig.
+
+```
+Internet
+   │
+Web-Server (Node.js)
+  └── QubicShield Middleware
+        ├── Deposit-Check (SC-Call)
+        ├── SchnorrQ-Signatur-Prüfung
+        └── Forfeit bei erkanntem Angriffsmuster
+   │
+Geschützte API / Ressource
+```
+
+**Einschränkung:** Unauthentifizierter Traffic (SYN-Floods, rohe HTTP-Anfragen ohne Token) erreicht weiterhin den Server. Der Server muss diese Last selbst tragen.
+
+**QubicShield Node** sitzt als Reverse Proxy vor dem Server und filtert auf Netzwerk-Ebene — er baut auf diesem Protokoll als Kern auf und löst genau diese verbleibende Schwäche.
+
+```
+Internet
+   │
+QubicShield Node (Reverse Proxy)
+  ├── Kein Token → blockieren oder 402 Payment Required
+  ├── Ungültige Signatur → 401
+  ├── Angriffsmuster → Forfeit() on-chain
+  └── Legitimer Traffic → weiterleiten
+   │
+Web-Server  (QubicShield Middleware, optionale zweite Prüfebene)
+   │
+Geschützte API / Ressource
+```
+
+| | QubicShield (dieser PoC) | QubicShield Node |
+|---|---|---|
+| Ebene | Anwendungsschicht (L7) | Netzwerk + Anwendung (L3–L7) |
+| Position | Im Web-Server | Vor dem Web-Server |
+| Schützt gegen | Missbrauch authentifizierter Sessions | Alle eingehenden Verbindungen |
+| Unauthentifizierter Traffic | Erreicht den Server | Wird davor blockiert |
+| Standalone nutzbar | **Ja** | Nein — braucht das Protokoll als Kern |
+| Status | Funktionierender Proof of Concept | Konzept / Vision |
+
+Der Node macht QubicShield nicht obsolet. Er erweitert das Protokoll auf eine tiefere Ebene. Ohne das funktionierende Deposit/Signing-Protokoll gibt es keinen Node.
+
+**Entwicklungsreihenfolge:**
+1. QubicShield PoC → beweist, dass das Protokoll funktioniert
+2. Testnet-Deploy → validiert gegen echten Smart Contract
+3. QubicShield Node → baut auf dem validierten Protokoll auf, erweitert auf Infrastruktur-Ebene
+
+→ Vollständige Details: [docs/gedanken/qubicshield-vs-node.md](docs/gedanken/qubicshield-vs-node.md)
+
+---
+
 ## Aktueller Stand
 
 Dies ist ein funktionsfähiger Proof of Concept:
