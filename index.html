@@ -426,6 +426,7 @@
     <a href="#s11"><span class="num">11</span> <span data-lang="de">Sicherheit</span><span data-lang="en">Security</span></a>
     <a href="#s12"><span class="num">12</span> <span data-lang="de">Registrierung</span><span data-lang="en">Registration</span></a>
     <a href="#s13"><span class="num">13</span> <span data-lang="de">Gesamtbild</span><span data-lang="en">Big Picture</span></a>
+    <a href="#s13b" style="padding-left:1.4rem"><span class="num">↳</span> <span data-lang="de">vs. Cloudflare</span><span data-lang="en">vs. Cloudflare</span></a>
     <a href="#s14"><span class="num">14</span> WithdrawForfeited</a>
     <a href="#s15"><span class="num">15</span> <span data-lang="de">IPO &amp; Dividenden</span><span data-lang="en">IPO &amp; Dividends</span></a>
     <a href="#s16"><span class="num">16</span> <span data-lang="de">Token-Entropie &amp; Struct</span><span data-lang="en">Token Entropy &amp; Struct</span></a>
@@ -925,6 +926,63 @@ END_EPOCH</code></pre>
       |                        |-- Refund(index, token) ----->|
       |                        |         qpi.transfer() ------+--> QUBIC back
       |<-- "Deposit returned"--|                              |</span></div>
+    </section>
+
+    <!-- 13b -->
+    <section id="s13b">
+      <div class="section-num">↳</div>
+      <h2><span class="icon">⚔️</span>
+        <span data-lang="de">QubicShield vs. Cloudflare</span>
+        <span data-lang="en">QubicShield vs. Cloudflare</span>
+      </h2>
+      <table>
+        <thead><tr>
+          <th></th>
+          <th>Cloudflare</th>
+          <th>QubicShield</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span data-lang="de">Ansatz</span><span data-lang="en">Approach</span></td>
+            <td><span data-lang="de">Technik filtert Angriffe</span><span data-lang="en">Technology filters attacks</span></td>
+            <td><span data-lang="de">Wirtschaft verhindert Angriffe</span><span data-lang="en">Economics prevents attacks</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Architektur</span><span data-lang="en">Architecture</span></td>
+            <td><span data-lang="de">Zentralisiert</span><span data-lang="en">Centralized</span></td>
+            <td><span data-lang="de">Dezentral</span><span data-lang="en">Decentralized</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Traffic-Sichtbarkeit</span><span data-lang="en">Traffic visibility</span></td>
+            <td><span data-lang="de">Cloudflare sieht alles</span><span data-lang="en">Cloudflare sees everything</span></td>
+            <td><span data-lang="de">Kein Traffic-Routing nötig</span><span data-lang="en">No traffic routing needed</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Single Point of Failure</span><span data-lang="en">Single point of failure</span></td>
+            <td><span data-lang="de">Ja</span><span data-lang="en">Yes</span></td>
+            <td><span data-lang="de">Nein</span><span data-lang="en">No</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Kosten ohne Angriff</span><span data-lang="en">Cost without attack</span></td>
+            <td><span data-lang="de">Monatliches Abo</span><span data-lang="en">Monthly subscription</span></td>
+            <td><span data-lang="de">Nahezu nichts</span><span data-lang="en">Near zero</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Datenschutz</span><span data-lang="en">Privacy</span></td>
+            <td><span data-lang="de">Traffic läuft über fremde Server</span><span data-lang="en">Traffic passes through their servers</span></td>
+            <td><span data-lang="de">DSGVO-konform by Design</span><span data-lang="en">GDPR-friendly by design</span></td>
+          </tr>
+          <tr>
+            <td><span data-lang="de">Langfristziel</span><span data-lang="en">Long-term goal</span></td>
+            <td><span data-lang="de">Angriffe managen</span><span data-lang="en">Manage attacks</span></td>
+            <td><span data-lang="de">Angriffe irrational machen</span><span data-lang="en">Make attacks irrational</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:1rem;background:rgba(245,158,11,0.08);border-color:var(--warn);">
+        <span data-lang="de"><strong style="color:var(--warn)">Wichtige Einschränkung:</strong> QubicShield schützt <strong>authentifizierten API-Zugang</strong>. Für volumetrischen Netzwerk-DDoS (SYN-Floods, UDP-Amplification) ist QubicShield <em>ergänzend</em> zu Cloudflare — kein vollständiger Ersatz. Nicht authentifizierter Traffic erreicht weiterhin den Server.</span>
+        <span data-lang="en"><strong style="color:var(--warn)">Important limitation:</strong> QubicShield protects <strong>authenticated API access</strong>. For volumetric network-layer DDoS (SYN floods, UDP amplification), QubicShield is <em>complementary</em> to Cloudflare — not a full replacement. Unauthenticated traffic still reaches the server.</span>
+      </div>
     </section>
 
     <!-- 14 -->
