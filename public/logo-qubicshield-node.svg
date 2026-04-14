@@ -47,7 +47,4 @@
   <path d="M120 36 L170 57 L170 112 Q170 154 120 182 Q70 154 70 112 L70 57 Z"
         fill="none" stroke="url(#shield-grad-n)" stroke-width="3" filter="url(#glow-n)"/>
 
-  <!-- Decorative dots (Qubic II motif) -->
-  <rect x="109" y="148" width="8"  height="22" rx="2.5" fill="#06b6d4" opacity="0.7"/>
-  <rect x="123" y="148" width="8"  height="22" rx="2.5" fill="#7c3aed" opacity="0.7"/>
 </svg>
