@@ -31,4 +31,10 @@
   <path d="M120 42 L166 62 L166 116 Q166 152 120 178 Q74 152 74 116 L74 62 Z"
         fill="url(#inner-grad)" stroke="url(#shield-grad)" stroke-width="1" opacity="0.4"/>
 
+  <!-- Qubic symbol — centered in shield (scale 1.4, origin 98/72) -->
+  <g transform="translate(98, 72) scale(1.4)" filter="url(#glow)">
+    <path fill="#23FFFF" d="M11.308 0H1.615C.723 0 0 .724 0 1.616v35.538c0 .892.723 1.616 1.615 1.616h9.693c.892 0 1.615-.724 1.615-1.616V1.616C12.923.724 12.2 0 11.308 0Z"/>
+    <path fill="#23FFFF" d="M28.538 0h-9.692c-.892 0-1.616.723-1.616 1.615v48.462c0 .892.724 1.615 1.616 1.615h9.692c.892 0 1.616-.723 1.616-1.615V1.615C30.154.723 29.43 0 28.538 0Z"/>
+  </g>
+
 </svg>
