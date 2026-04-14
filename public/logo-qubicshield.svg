@@ -31,11 +31,6 @@
   <path d="M120 42 L166 62 L166 116 Q166 152 120 178 Q74 152 74 116 L74 62 Z"
         fill="url(#inner-grad)" stroke="url(#shield-grad)" stroke-width="1" opacity="0.4"/>
 
-  <!-- Q letter -->
-  <text x="120" y="128" font-family="'Segoe UI', system-ui, sans-serif"
-        font-size="64" font-weight="700" text-anchor="middle"
-        fill="url(#shield-grad)" filter="url(#glow)" opacity="0.95">Q</text>
-
   <!-- Decorative dots (Qubic II motif) -->
   <rect x="104" y="154" width="10" height="28" rx="3" fill="#06b6d4" opacity="0.7"/>
   <rect x="126" y="154" width="10" height="28" rx="3" fill="#7c3aed" opacity="0.7"/>
